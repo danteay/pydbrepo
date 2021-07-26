@@ -1,6 +1,6 @@
 """Mongo query helpers."""
 
-from typing import Dict, Any, AnyStr, Optional
+from typing import AnyStr, Optional
 
 from pymongo.collection import Cursor
 
@@ -37,8 +37,8 @@ def add_order_by(query: Cursor, order_by: Optional[AnyStr] = None, order: Option
     if order_by is not None:
         if order is not None:
             return query.sort(order_by, order)
-        else:
-            return query.sort(order_by, order)
+
+        return query.sort(order_by)
 
     return query
 

@@ -2,7 +2,7 @@
 
 from abc import ABC, abstractmethod
 from contextlib import ContextDecorator
-from typing import Any, AnyStr, List, NoReturn, Set
+from typing import Any, AnyStr, NoReturn, Set
 
 from pydbrepo.errors import QueryError
 

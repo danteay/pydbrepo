@@ -1,7 +1,7 @@
 """Common helpers."""
 
-from uuid import UUID
 from typing import Any
+from uuid import UUID
 
 
 def handle_extra_types(value: Any) -> Any:

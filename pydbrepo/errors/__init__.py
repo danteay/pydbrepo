@@ -2,5 +2,5 @@
 
 from .config import DriverConfigError
 from .fields import FieldCastError, FieldTypeError, FieldValueError
-from .queries import QueryError, BuilderError, DriverExecutionError
+from .queries import BuilderError, DriverExecutionError, QueryError
 from .serialization import SerializationError
