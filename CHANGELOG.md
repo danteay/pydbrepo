@@ -1,3 +1,9 @@
+## 0.1.2 (2021-07-26)
+
+### Fix
+
+- static typing for repository implementations
+
 ## 0.1.1 (2021-07-26)
 
 ### Fix
