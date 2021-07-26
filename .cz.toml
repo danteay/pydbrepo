@@ -1,0 +1,9 @@
+[tool.commitizen]
+name = "cz_conventional_commits"
+version = "0.0.0"
+tag_format = "$version"
+bump_message = "bump: Semantic Release Bot: Release Version: $new_version 🤖🚀 [skip ci]"
+version_files = [
+    "setup.py:version",
+    "pyproject.toml:version"
+]

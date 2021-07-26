@@ -1,0 +1,21 @@
+# Python env
+__pycache__/
+venv/
+
+# Distribution
+dist/
+build/
+_build/
+
+# IDE config
+.idea/
+.vscode/
+
+# Testing
+htmlcov/
+.pytest_cache/
+.coverage
+coverage.xml
+
+# Single files
+.DS_Store

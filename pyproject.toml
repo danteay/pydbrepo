@@ -1,0 +1,40 @@
+[tool.poetry]
+name = "pydbrepo"
+version = "0.0.0"
+description = "Simple implementation of repository pattern for database connections."
+license = "MIT"
+readme = "README.md"
+authors = ["Eduardo Aguilar <dante.aguilar41@gmail.com>"]
+repository = "https://github.com/danteay/pydbrepo"
+homepage = "https://github.com/danteay/pydbrepo"
+documentation = "https://pydbrepo.readthedocs.io"
+keywords = ['database', 'repository', 'postgres']
+classifiers = [
+    "Programming Language :: Python :: 3.7",
+    "Programming Language :: Python :: 3.8",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent"
+]
+
+[tool.poetry.dependencies]
+python = "^3.7"
+python-dateutil = "^2.8.2"
+PyPika = "^0.48.7"
+
+[tool.poetry.dev-dependencies]
+coverage = "~=5.5"
+mamba = "~=0.11.2"
+expects = "~=0.9.0"
+yapf = "~=0.31.0"
+pylint = "~=2.9.5"
+isort = "~=5.9.1"
+radon = "~=5.0.1"
+Sphinx = "^4.0.2"
+sphinx-rtd-theme = "^0.5.2"
+psycopg2-binary = "^2.9.1"
+pymongo = "^3.12.0"
+dnspython = "^2.1.0"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
