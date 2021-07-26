@@ -2,7 +2,7 @@
 extended to add more complex operations.
 """
 
-from typing import (Any, AnyStr, Dict, Iterable, List, NoReturn, Set, Tuple, Union)
+from typing import Any, AnyStr, Dict, Iterable, List, NoReturn, Set, Tuple, Type, Union, Optional
 
 from pypika import Parameter
 from pypika import PostgreSQLQuery as Query
@@ -22,7 +22,7 @@ class PostgresRepository(Repository):
 
     :param driver: Database driver implementation
     :param table: Main table that will handle the repository
-    :param entity: Base data entity that will handle the repository
+    :param entity: Class type that should be handled by the repository
     :param log_level: Logging level
     :param debug: Flag for debug mode
     :param auto_timestamps: Flag to insert timestamps on configured created_at and updated_at fields
@@ -33,13 +33,13 @@ class PostgresRepository(Repository):
     def __init__(
         self,
         driver: Postgres,
-        table: AnyStr = None,
-        entity: Entity = None,
-        log_level: int = None,
-        debug: bool = False,
-        auto_timestamps: bool = False,
-        created_at: AnyStr = None,
-        updated_at: AnyStr = None,
+        table: Optional[AnyStr] = None,
+        entity: Optional[Type] = None,
+        log_level: Optional[int] = None,
+        debug: Optional[bool] = False,
+        auto_timestamps: Optional[bool] = False,
+        created_at: Optional[AnyStr] = None,
+        updated_at: Optional[AnyStr] = None,
     ):
         super().__init__(driver, entity, log_level, debug, auto_timestamps, created_at, updated_at)
         self._table = table
