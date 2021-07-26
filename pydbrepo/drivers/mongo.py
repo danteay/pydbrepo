@@ -1,18 +1,18 @@
 """Mongo driver."""
 
-# pylint: disable=R0201
+# pylint: disable=R0201,C0103
 
 import os
 import ssl
 from enum import Enum
-from typing import Any, AnyStr, Dict, List, NoReturn, Union, Optional
+from typing import Any, AnyStr, Dict, NoReturn, Optional, Union
 
 import pymongo
-from pymongo.results import DeleteResult, InsertOneResult, InsertManyResult, UpdateResult
 from pymongo.collection import Cursor
+from pymongo.results import (DeleteResult, InsertManyResult, InsertOneResult, UpdateResult)
 
 from pydbrepo.drivers.driver import Driver
-from pydbrepo.errors import DriverConfigError, DriverExecutionError, BuilderError
+from pydbrepo.errors import (BuilderError, DriverConfigError, DriverExecutionError)
 from pydbrepo.helpers import mongo
 
 
@@ -53,15 +53,19 @@ class Mongo(Driver):
     """
 
     def __init__(
-        self, url: AnyStr = None, user: AnyStr = None, pwd: AnyStr = None, host: AnyStr = None,
-        port: AnyStr = None, database: AnyStr = None, **kwargs,
+        self,
+        url: AnyStr = None,
+        user: AnyStr = None,
+        pwd: AnyStr = None,
+        host: AnyStr = None,
+        port: AnyStr = None,
+        database: AnyStr = None,
+        **kwargs,
     ):
         super().__init__()
         self._database = None
 
-        self._build_connection(
-            url, user, pwd, host, port, database, **kwargs
-        )
+        self._build_connection(url, user, pwd, host, port, database, **kwargs)
 
     @property
     def database(self) -> AnyStr:
@@ -74,8 +78,14 @@ class Mongo(Driver):
         self._database = value
 
     def _build_connection(
-        self, url: AnyStr = None, user: AnyStr = None, pwd: AnyStr = None, host: AnyStr = None,
-        port: AnyStr = None, database: AnyStr = None, **kwargs,
+        self,
+        url: AnyStr = None,
+        user: AnyStr = None,
+        pwd: AnyStr = None,
+        host: AnyStr = None,
+        port: AnyStr = None,
+        database: AnyStr = None,
+        **kwargs,
     ) -> NoReturn:
         """start real driver connection from parameters.
 
@@ -99,11 +109,7 @@ class Mongo(Driver):
             return
 
         self._conn = pymongo.MongoClient(
-            host=params['host'],
-            port=int(params['port']),
-            username=params['user'],
-            password=params['pwd'],
-            **kwargs
+            host=params['host'], port=int(params['port']), username=params['user'], password=params['pwd'], **kwargs
         )
 
         self._ping()
@@ -138,8 +144,12 @@ class Mongo(Driver):
 
     @staticmethod
     def _prepare_connection_parameters(
-        url: AnyStr = None, user: AnyStr = None, pwd: AnyStr = None, host: AnyStr = None,
-        port: AnyStr = None, database: AnyStr = None,
+        url: AnyStr = None,
+        user: AnyStr = None,
+        pwd: AnyStr = None,
+        host: AnyStr = None,
+        port: AnyStr = None,
+        database: AnyStr = None,
     ) -> Dict[AnyStr, AnyStr]:
         """Validate connection parameters an try to fill it from env vars if they are not set.
 
@@ -270,9 +280,16 @@ class Mongo(Driver):
         raise NotImplementedError('Method is not implemented because is not needed for Mongo queries')
 
     def _execute_method(
-        self, action: MongoAction, type_: MongoActionType, collection: AnyStr, filters: Dict[AnyStr, Any],
-        data: Optional[Dict[AnyStr, Any]] = None, limit: Optional[int] = None, offset: Optional[int] = None,
-        order_by: Optional[AnyStr] = None, order: Optional[MongoOrder] = None
+        self,
+        action: MongoAction,
+        type_: MongoActionType,
+        collection: AnyStr,
+        filters: Dict[AnyStr, Any],
+        data: Optional[Dict[AnyStr, Any]] = None,
+        limit: Optional[int] = None,
+        offset: Optional[int] = None,
+        order_by: Optional[AnyStr] = None,
+        order: Optional[MongoOrder] = None
     ) -> Any:
         """Return the execution function according mongo action.
 
@@ -304,8 +321,14 @@ class Mongo(Driver):
         raise DriverExecutionError(f'Invalid {action} operation was called')
 
     def _find(
-        self, type_: MongoActionType, collection: AnyStr, filters: Dict[AnyStr, Any], limit: Optional[int] = None,
-        offset: Optional[int] = None, order_by: Optional[AnyStr] = None, order: Optional[MongoOrder] = None
+        self,
+        type_: MongoActionType,
+        collection: AnyStr,
+        filters: Dict[AnyStr, Any],
+        limit: Optional[int] = None,
+        offset: Optional[int] = None,
+        order_by: Optional[AnyStr] = None,
+        order: Optional[MongoOrder] = None
     ) -> Cursor:
         """Return find method variation of MongoClient connection.
 
@@ -331,9 +354,8 @@ class Mongo(Driver):
 
         raise DriverExecutionError(f'Invalid variation {type_} of find method')
 
-    def _insert(
-        self, type_: MongoActionType, collection: AnyStr, data: Dict[AnyStr, Any]
-    ) -> Union[InsertOneResult, InsertManyResult]:
+    def _insert(self, type_: MongoActionType, collection: AnyStr,
+                data: Dict[AnyStr, Any]) -> Union[InsertOneResult, InsertManyResult]:
         """Return insert method variation of MongoClient connection.
 
         :param type_: Variation type of the mongo operation
@@ -356,7 +378,11 @@ class Mongo(Driver):
         raise DriverExecutionError(f'Invalid variation {type_} of insert method')
 
     def _update(
-        self, type_: MongoActionType, collection: AnyStr, filters: Dict[AnyStr, Any], data: Dict[AnyStr, Any],
+        self,
+        type_: MongoActionType,
+        collection: AnyStr,
+        filters: Dict[AnyStr, Any],
+        data: Dict[AnyStr, Any],
     ) -> UpdateResult:
         """Return update method variation of MongoClient connection.
 

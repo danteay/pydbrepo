@@ -1,11 +1,12 @@
 """Mongo repository implementation."""
 
-from typing import AnyStr, NoReturn, List, Any
+from typing import Any, AnyStr, List, NoReturn
 
-from pydbrepo.entity import Entity
 from pydbrepo.drivers import Mongo, MongoAction, MongoActionType
+from pydbrepo.entity import Entity
 from pydbrepo.errors import BuilderError
 from pydbrepo.helpers import common
+
 from .repository import Repository
 
 
@@ -59,9 +60,7 @@ class MongoRepository(Repository):
             'offset': kwargs.get('offset')
         }
 
-        return self.driver.query_one(
-            action=MongoAction.find, collection=self._collection, **params
-        )
+        return self.driver.query_one(action=MongoAction.find, collection=self._collection, **params)
 
     def find_many(self, **kwargs) -> Any:
         """Find one record from passed filters.
@@ -86,9 +85,7 @@ class MongoRepository(Repository):
             'offset': kwargs.get('offset', None)
         }
 
-        return self.driver.query(
-            action=MongoAction.find, collection=self._collection, **params
-        )
+        return self.driver.query(action=MongoAction.find, collection=self._collection, **params)
 
     def insert_one(self, record: Entity, return_id: bool = False) -> Any:
         """Find one record from passed filters.
@@ -105,14 +102,12 @@ class MongoRepository(Repository):
         data = self._add_created_at(data)
         data = self._add_updated_at(data)
 
-        result = self.driver.query(
-            action=MongoAction.insert, collection=self._collection, data=data
-        )
+        result = self.driver.query(action=MongoAction.insert, collection=self._collection, data=data)
 
         if return_id:
             return result.return_id
 
-        return
+        return None
 
     def insert_many(self, records: List[Entity], return_ids: bool = False) -> Any:
         """Find one record from passed filters.
@@ -134,14 +129,12 @@ class MongoRepository(Repository):
 
             data.append(record)
 
-        result = self.driver.query(
-            action=MongoAction.insert, collection=self._collection, data=data
-        )
+        result = self.driver.query(action=MongoAction.insert, collection=self._collection, data=data)
 
         if return_ids:
             return result.inserted_ids
 
-        return
+        return None
 
     def update(self, **kwargs) -> NoReturn:
         """Find one record from passed filters.

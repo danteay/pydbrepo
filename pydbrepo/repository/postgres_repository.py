@@ -2,7 +2,7 @@
 extended to add more complex operations.
 """
 
-from typing import Any, AnyStr, Dict, Iterable, List, NoReturn, Set, Tuple, Union
+from typing import (Any, AnyStr, Dict, Iterable, List, NoReturn, Set, Tuple, Union)
 
 from pypika import Parameter
 from pypika import PostgreSQLQuery as Query
@@ -10,7 +10,7 @@ from pypika import PostgreSQLQuery as Query
 from pydbrepo.drivers import Postgres
 from pydbrepo.entity import Entity
 from pydbrepo.errors import BuilderError
-from pydbrepo.helpers import sql, common
+from pydbrepo.helpers import common, sql
 
 from .repository import Repository
 
