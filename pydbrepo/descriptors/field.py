@@ -2,11 +2,10 @@
 
 import operator
 from datetime import date, datetime
-from typing import Any, AnyStr, Tuple, Type, Union
+from typing import Any, AnyStr, Optional, Tuple, Type, Union
 
 from dateutil.parser import parse
 
-from pydbrepo.entity import EnumEntity
 from pydbrepo.errors import FieldCastError, FieldTypeError, FieldValueError
 
 __all__ = ['Field']
@@ -15,17 +14,20 @@ __all__ = ['Field']
 class Field:
     """Class that describes a field and his base validations.
 
-    :param type_: Python type
-    :param:
+    :param type_: Python type of the field
+    :param exp_values: Class that describes the expected values for the field (should extend from EnumEntity)
+    :param cast_to: Class that describes the type that the field should be casted to
+    :param cast_if: Class that describes the type that the field should be casted to if it is equal to the given value
+    :param name: Field name
     """
 
     def __init__(
         self,
-        type_: Union[Type, Tuple[Type]],
-        exp_values: EnumEntity = None,
-        cast_to: Type = None,
-        cast_if: Type = None,
-        name: AnyStr = None
+        type_: Union[Type, Tuple],
+        exp_values: Optional[Type] = None,
+        cast_to: Optional[Type] = None,
+        cast_if: Optional[Type] = None,
+        name: Optional[AnyStr] = None
     ):
         self._value = None
         self._type = type_
