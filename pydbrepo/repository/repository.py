@@ -3,7 +3,7 @@
 import logging
 from abc import ABC, abstractmethod
 from datetime import datetime
-from typing import Any, AnyStr, Dict, List, NoReturn, Type, Union
+from typing import Any, AnyStr, Dict, List, NoReturn, Type, Union, Optional
 
 from pydbrepo.drivers.driver import Driver
 from pydbrepo.entity import Entity
@@ -15,7 +15,7 @@ class Repository(ABC):
     """Abstract repository class.
 
     :param driver: Database driver implementation
-    :param entity: Base data entity that will handle the repository
+    :param entity: Class type that should be handled by the repository
     :param log_level: Logging level
     :param debug: Flag for debug mode
     :param auto_timestamps: Flag to insert timestamps on configured created_at and updated_at fields
@@ -26,12 +26,12 @@ class Repository(ABC):
     def __init__(
         self,
         driver: Driver,
-        entity: Entity = None,
-        log_level: int = None,
-        debug: bool = False,
-        auto_timestamps: bool = False,
-        created_at: AnyStr = None,
-        updated_at: AnyStr = None,
+        entity: Optional[Type] = None,
+        log_level: Optional[int] = None,
+        debug: Optional[bool] = False,
+        auto_timestamps: Optional[bool] = False,
+        created_at: Optional[AnyStr] = None,
+        updated_at: Optional[AnyStr] = None,
     ):
         self._prepare_logger(log_level, debug)
         self.entity_properties = None
