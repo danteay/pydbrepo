@@ -1,3 +1,9 @@
+## 0.1.3 (2021-07-27)
+
+### Fix
+
+- auto load of driver dependencies
+
 ## 0.1.2 (2021-07-26)
 
 ### Fix
