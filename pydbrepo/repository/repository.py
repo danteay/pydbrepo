@@ -3,7 +3,7 @@
 import logging
 from abc import ABC, abstractmethod
 from datetime import datetime
-from typing import Any, AnyStr, Dict, List, NoReturn, Type, Union, Optional
+from typing import Any, AnyStr, Dict, List, NoReturn, Optional, Type, Union
 
 from pydbrepo.drivers.driver import Driver
 from pydbrepo.entity import Entity

@@ -1,8 +1,8 @@
 """Mongo repository implementation."""
 
-from typing import Any, AnyStr, List, NoReturn, Type, Optional
+from typing import Any, AnyStr, List, NoReturn, Optional, Type
 
-from pydbrepo.drivers import Mongo, MongoAction, MongoActionType
+from pydbrepo.drivers.mongo import Mongo, MongoAction, MongoActionType
 from pydbrepo.entity import Entity
 from pydbrepo.errors import BuilderError
 from pydbrepo.helpers import common

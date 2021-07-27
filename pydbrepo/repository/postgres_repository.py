@@ -2,12 +2,12 @@
 extended to add more complex operations.
 """
 
-from typing import Any, AnyStr, Dict, Iterable, List, NoReturn, Set, Tuple, Type, Union, Optional
+from typing import (Any, AnyStr, Dict, Iterable, List, NoReturn, Optional, Set, Tuple, Type, Union)
 
 from pypika import Parameter
 from pypika import PostgreSQLQuery as Query
 
-from pydbrepo.drivers import Postgres
+from pydbrepo.drivers.postgres import Postgres
 from pydbrepo.entity import Entity
 from pydbrepo.errors import BuilderError
 from pydbrepo.helpers import common, sql
