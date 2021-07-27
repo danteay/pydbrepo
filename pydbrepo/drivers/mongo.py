@@ -112,13 +112,12 @@ class Mongo(Driver):
             host=params['host'], port=int(params['port']), username=params['user'], password=params['pwd'], **kwargs
         )
 
-        self._ping()
-
-    def _ping(self):
+    def ping(self):
         """Check database Connection.
 
         :raise DriverConfigError: In case of Mongo ping command fails
         """
+
         res = self._conn[self._database].command("ping")
 
         if res["ok"] != 1.0:
