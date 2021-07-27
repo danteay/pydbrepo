@@ -1,3 +1,9 @@
+## 0.1.6 (2021-07-27)
+
+### Fix
+
+- ping command without database name
+
 ## 0.1.5 (2021-07-27)
 
 ### Fix
