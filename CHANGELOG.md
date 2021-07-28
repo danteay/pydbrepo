@@ -1,3 +1,9 @@
+## 0.1.8 (2021-07-28)
+
+### Fix
+
+- query filters validation
+
 ## 0.1.7 (2021-07-28)
 
 ### Fix
