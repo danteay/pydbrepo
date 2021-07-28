@@ -6,7 +6,8 @@ from typing import Any, AnyStr, Optional, Tuple, Type, Union
 
 from dateutil.parser import parse
 
-from pydbrepo.errors import FieldCastError, FieldTypeError, FieldValueError
+from pydbrepo.entity.enum_entity import EnumEntity
+from pydbrepo.errors import FieldCastError, FieldTypeError
 
 __all__ = ['Field']
 
@@ -15,7 +16,6 @@ class Field:
     """Class that describes a field and his base validations.
 
     :param type_: Python type of the field
-    :param exp_values: Class that describes the expected values for the field (should extend from EnumEntity)
     :param cast_to: Class that describes the type that the field should be casted to
     :param cast_if: Class that describes the type that the field should be casted to if it is equal to the given value
     :param name: Field name
@@ -24,14 +24,12 @@ class Field:
     def __init__(
         self,
         type_: Union[Type, Tuple],
-        exp_values: Optional[Type] = None,
         cast_to: Optional[Type] = None,
         cast_if: Optional[Type] = None,
         name: Optional[AnyStr] = None
     ):
         self._value = None
         self._type = type_
-        self._exp_values = exp_values
         self._cast_to = cast_to
         self._cast_if = cast_if
         self._name = name
@@ -39,15 +37,14 @@ class Field:
     def __set__(self, instance, value):
         """Validate and save field value."""
 
-        if self._exp_values is not None:
-            self._validate_expected_values(instance, value)
-
         self._validate_types(instance, value)
-
         self._value = self._cast_value(instance, value)
 
     def __get__(self, instance, owner) -> Any:
         """Return saved field value."""
+
+        if issubclass(type(self._value), EnumEntity):
+            return self._value.value
 
         return self._value
 
@@ -97,17 +94,6 @@ class Field:
 
     def __floordiv__(self, other: Any) -> Any:
         return operator.__floordiv__(self._value, other)
-
-    def _validate_expected_values(self, instance: Any, value: Any):
-        """Execute expected values validation for the given field value.
-
-        :param instance: Filed owner class
-        :param value: Field value
-        :raise FieldValueError: If the given value is not expected
-        """
-
-        if self._exp_values.is_valid(value) and value is not None:
-            raise FieldValueError(instance.__class__.__name__, self._name, value, self._exp_values)
 
     def _validate_types(self, instance: Any, value: Any):
         """Execute type validation for field value.

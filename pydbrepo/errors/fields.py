@@ -3,41 +3,9 @@
 from typing import Any, AnyStr, Iterable, Optional, Type, Union
 
 __all__ = [
-    'FieldValueError',
     'FieldTypeError',
     'FieldCastError',
 ]
-
-
-class FieldValueError(ValueError):
-    """Exception for value verification error in a entity field.
-
-    :param class_name: Name of the entity class
-    :param field: Name of the validated field
-    :param value: Validated value
-    :param expected: Expected value or values as EnumEntity object or other formats
-    """
-
-    def __init__(self, class_name: AnyStr, field: AnyStr, value: Any, expected: Any):
-        super().__init__(
-            f'{class_name}.{field}({value}) should be one of the next values: '
-            f'{self._get_expected_values(expected)}',
-        )
-
-    @staticmethod
-    def _get_expected_values(expected: Any) -> AnyStr:
-        """Obtain expected values from EnumEntity class or return the passed values.
-
-        :param expected: Passed expected values
-        :return AnyStr: String representation of the expected values
-        """
-
-        values = getattr(expected, 'values', None)
-
-        if values is not None and type(values).__name__ in {'method', 'function'}:
-            return str(values())
-
-        return str(expected)
 
 
 class FieldTypeError(TypeError):
