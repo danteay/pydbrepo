@@ -6,6 +6,7 @@ from typing import Any, AnyStr, Optional, Tuple, Type, Union
 
 from dateutil.parser import parse
 
+from pydbrepo.entity.entity import Entity
 from pydbrepo.entity.enum_entity import EnumEntity
 from pydbrepo.errors import FieldCastError, FieldTypeError
 
@@ -143,6 +144,9 @@ class Field:
             # Cast for string dates
             if self._cast_to in {date, datetime}:
                 return parse(value)
+
+            if issubclass(self._cast_to, Entity):
+                return self._cast_to.from_dict(value)
 
             return self._cast_to(value)
         except Exception as error:
