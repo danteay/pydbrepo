@@ -12,7 +12,7 @@ from pymongo.collection import Cursor
 from pymongo.results import (DeleteResult, InsertManyResult, InsertOneResult, UpdateResult)
 
 from pydbrepo.drivers.driver import Driver
-from pydbrepo.errors import (BuilderError, DriverConfigError, DriverExecutionError)
+from pydbrepo.errors import (BuilderError, DriverConfigError, DriverExecutionError, QueryError)
 from pydbrepo.helpers import mongo
 
 
@@ -195,7 +195,7 @@ class Mongo(Driver):
         :param kwargs: Definition of the query execution.
             action: MongoAction -> (find, insert, update, delete)
             collection: AnyStr -> Name of the queried collection
-            filters: Dict[AnyStr, Any] -> pymongo query filters that should be applied
+            filters: Optional[Dict[AnyStr, Any]] -> pymongo query filters that should be applied
             order_by: Optional[MongoOrder] -> query ordering method
             order: Optional[int] -> Filed that should be ordered in query
             limit: Optional[int] -> Number or retrieved documents for the query
@@ -205,7 +205,7 @@ class Mongo(Driver):
         :return Any: List of found elements
         """
 
-        self._validate_params({'action', 'collection', 'filters'}, set(kwargs.keys()))
+        self._validate_kwargs(**kwargs)
 
         if 'type_' in set(kwargs.keys()):
             del kwargs['type_']
@@ -227,7 +227,7 @@ class Mongo(Driver):
         :return Any: List of found elements
         """
 
-        self._validate_params({'action', 'collection', 'filters'}, set(kwargs.keys()))
+        self._validate_kwargs(**kwargs)
 
         if 'type_' in set(kwargs.keys()):
             del kwargs['type_']
@@ -247,7 +247,7 @@ class Mongo(Driver):
             offset: Optional[int] -> Number of omitted documents before the result
         """
 
-        self._validate_params({'action', 'collection', 'filters'}, set(kwargs.keys()))
+        self._validate_kwargs(**kwargs)
 
         if 'type_' in set(kwargs.keys()):
             del kwargs['type_']
@@ -422,3 +422,16 @@ class Mongo(Driver):
             return self._conn[self._database][collection].delete_many(filters)
 
         raise DriverExecutionError(f'Invalid variation {type_} of delete method')
+
+    def _validate_kwargs(self, **kwargs) -> NoReturn:
+        """Validation for query kwargs and check if there are the necessary options.
+
+        :raise QueryError: If filters is not present in actions different of insert
+        """
+
+        keys = set(kwargs.keys())
+
+        self._validate_params({'action', 'collection'}, keys)
+
+        if kwargs['action'] != MongoAction.insert and 'filters' not in keys:
+            raise QueryError(f"Action {kwargs['action']} needs filters param to be executed")
