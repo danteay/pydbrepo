@@ -283,7 +283,7 @@ class Mongo(Driver):
         action: MongoAction,
         type_: MongoActionType,
         collection: AnyStr,
-        filters: Dict[AnyStr, Any],
+        filters: Optional[Dict[AnyStr, Any]] = None,
         data: Optional[Dict[AnyStr, Any]] = None,
         limit: Optional[int] = None,
         offset: Optional[int] = None,
