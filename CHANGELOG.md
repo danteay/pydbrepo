@@ -1,3 +1,9 @@
+## 0.1.9 (2021-07-28)
+
+### Fix
+
+- propagated mongo query filters
+
 ## 0.1.8 (2021-07-28)
 
 ### Fix
