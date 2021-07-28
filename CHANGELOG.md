@@ -1,3 +1,9 @@
+## 0.1.12 (2021-07-28)
+
+### Fix
+
+- error casting nested field entities
+
 ## 0.1.11 (2021-07-28)
 
 ### Fix
