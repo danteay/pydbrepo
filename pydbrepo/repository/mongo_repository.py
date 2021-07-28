@@ -105,7 +105,7 @@ class MongoRepository(Repository):
         result = self.driver.query_one(action=MongoAction.insert, collection=self._collection, data=data)
 
         if return_id:
-            return result.return_id
+            return result.inserted_id
 
         return None
 
