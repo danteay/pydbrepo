@@ -102,7 +102,7 @@ class MongoRepository(Repository):
         data = self._add_created_at(data)
         data = self._add_updated_at(data)
 
-        result = self.driver.query(action=MongoAction.insert, collection=self._collection, data=data)
+        result = self.driver.query_one(action=MongoAction.insert, collection=self._collection, data=data)
 
         if return_id:
             return result.return_id
