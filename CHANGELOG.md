@@ -1,3 +1,9 @@
+## 0.1.10 (2021-07-28)
+
+### Fix
+
+- wrong diver method usage on MongoRepository
+
 ## 0.1.9 (2021-07-28)
 
 ### Fix
