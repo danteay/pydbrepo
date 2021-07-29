@@ -1,3 +1,9 @@
+## 0.2.0 (2021-07-29)
+
+### Feat
+
+- enhance static typing for cast_if param on Field class
+
 ## 0.1.17 (2021-07-29)
 
 ### Fix
