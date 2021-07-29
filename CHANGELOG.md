@@ -1,3 +1,9 @@
+## 0.1.13 (2021-07-29)
+
+### Fix
+
+- from dict entity creation error when field names start with underscore
+
 ## 0.1.12 (2021-07-28)
 
 ### Fix

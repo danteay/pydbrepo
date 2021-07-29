@@ -7,7 +7,7 @@ with open('README.md', 'r') as f:
 
 setup(
     name='pydbrepo',
-    version='0.1.12',
+    version='0.1.13',
     packages=find_packages(),
     description='Simple implementation of repository pattern for database connections.',
     long_description=long_description,
