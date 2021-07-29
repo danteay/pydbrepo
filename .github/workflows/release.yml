@@ -3,6 +3,7 @@ name: Release
 on:
   push:
     branches: [master]
+
 env:
   GIT_USER_EMAIL: dante.aguilar41@gmail.com
   GIT_USER_NAME: danteay
