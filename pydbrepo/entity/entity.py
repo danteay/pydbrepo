@@ -77,15 +77,15 @@ class Entity:
         """
 
         instance = cls()
-        keys = instance.to_dict(skip_none=False).keys()
+        keys = set(instance.to_dict(skip_none=False).keys())
 
-        for key in data.keys():
+        for key, value in data.items():
             # Validate if the name starts with underscore and remove it from the name
             if key[:1] == '_':
                 key = key[1:]
 
             if key in keys:
-                setattr(instance, key, data[key])
+                setattr(instance, key, value)
 
         return instance
 
