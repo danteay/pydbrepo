@@ -104,7 +104,7 @@ class Field:
         :raise FieldTypeError: If the value is different from expected types
         """
 
-        if not isinstance(value, self._type):
+        if not isinstance(value, self._type) and value is not None:
             raise FieldTypeError(instance.__class__.__name__, self._name, value, self._type)
 
     def _cast_value(self, instance: Any, value: Any) -> Any:
