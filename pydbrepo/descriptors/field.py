@@ -26,7 +26,7 @@ class Field:
         self,
         type_: Union[Type, Tuple],
         cast_to: Optional[Type] = None,
-        cast_if: Optional[Type] = None,
+        cast_if: Optional[Union[Type, Tuple[Type, ...]]] = None,
         name: Optional[AnyStr] = None
     ):
         self._value = None
