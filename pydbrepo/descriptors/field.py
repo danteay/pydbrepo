@@ -115,7 +115,7 @@ class Field:
         :return Any: Casted value
         """
 
-        if self._cast_to is None:
+        if self._cast_to is None or isinstance(value, self._cast_to):
             return value
 
         if self._cast_if is not None:
