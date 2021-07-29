@@ -1,3 +1,9 @@
+## 0.1.14 (2021-07-29)
+
+### Fix
+
+- try to cast even when the value has the expected value
+
 ## 0.1.13 (2021-07-29)
 
 ### Fix
