@@ -1,3 +1,9 @@
+## 0.1.15 (2021-07-29)
+
+### Fix
+
+- support for nullable fields
+
 ## 0.1.14 (2021-07-29)
 
 ### Fix
