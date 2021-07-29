@@ -396,13 +396,13 @@ class Mongo(Driver):
             if data is None:
                 raise BuilderError("Can't update empty data")
 
-            return self._conn[self._database][collection].update_one(filters, data)
+            return self._conn[self._database][collection].update_one(filters, {"$set": data})
 
         if type_ in {MongoActionType.none, MongoActionType.many}:
             if len(data) < 1:
                 raise BuilderError("Can't update empty data")
 
-            return self._conn[self._database][collection].update_many(filters, data)
+            return self._conn[self._database][collection].update_many(filters, {"$set": data})
 
         raise DriverExecutionError(f'Invalid variation {type_} of update method')
 
