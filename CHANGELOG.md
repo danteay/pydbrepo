@@ -1,3 +1,9 @@
+## 0.1.17 (2021-07-29)
+
+### Fix
+
+- Add  operator for update actions in mongo driver
+
 ## 0.1.16 (2021-07-29)
 
 ### Fix
