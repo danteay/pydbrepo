@@ -63,6 +63,7 @@ confidence=
 disable=arguments-differ,
         logging-fstring-interpolation,
         too-few-public-methods,
+        duplicate-code,
         unused-argument,
         raise-missing-from,
         singleton-comparison,

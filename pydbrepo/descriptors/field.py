@@ -19,6 +19,7 @@ class Field:
     :param type_: Python type of the field
     :param cast_to: Class that describes the type that the field should be casted to
     :param cast_if: Class that describes the type that the field should be casted to if it is equal to the given value
+    :param value: Initial default field value
     :param name: Field name
     """
 
@@ -27,9 +28,10 @@ class Field:
         type_: Union[Type, Tuple],
         cast_to: Optional[Type] = None,
         cast_if: Optional[Union[Type, Tuple[Type, ...]]] = None,
-        name: Optional[AnyStr] = None
+        name: Optional[AnyStr] = None,
+        value: Optional[Any] = None
     ):
-        self._value = None
+        self._value = value
         self._type = type_
         self._cast_to = cast_to
         self._cast_if = cast_if
@@ -159,3 +161,7 @@ class Field:
                 current_type=type(value),
                 errors=error
             )
+
+    def __repr__(self):
+        """Field representation."""
+        return self._value.__repr__()

@@ -2,22 +2,22 @@
 extended to add more complex operations.
 """
 
-from typing import (Any, AnyStr, Dict, Iterable, List, NoReturn, Optional, Set, Tuple, Type, Union)
+from typing import (Any, AnyStr, Dict, Iterable, List, NoReturn, Optional, Set, Type)
 
+from pypika import MySQLQuery as Query
 from pypika import Parameter
-from pypika import PostgreSQLQuery as Query
 
-from pydbrepo.drivers.postgres import Postgres
+from pydbrepo.drivers.mysql import Mysql
 from pydbrepo.entity import Entity
 from pydbrepo.errors import BuilderError
-from pydbrepo.helpers import common, sql
+from pydbrepo.helpers import common, mysql, sql
 
 from .repository import Repository
 
-__all__ = ['PostgresRepository']
+__all__ = ['MysqlRepository']
 
 
-class PostgresRepository(Repository):
+class MysqlRepository(Repository):
     """SQL based repository implementation.
 
     :param driver: Database driver implementation
@@ -32,7 +32,7 @@ class PostgresRepository(Repository):
 
     def __init__(
         self,
-        driver: Postgres,
+        driver: Mysql,
         table: Optional[AnyStr] = None,
         entity: Optional[Type] = None,
         log_level: Optional[int] = None,
@@ -75,7 +75,7 @@ class PostgresRepository(Repository):
 
         return self.entity().from_record(fields, record)
 
-    def find_many(self, **kwargs) -> Union[None, List[Any]]:
+    def find_many(self, **kwargs) -> Optional[List[Any]]:
         """Find one record from passed filters.
 
         :param kwargs: Parameters that will be process by the method.
@@ -120,11 +120,11 @@ class PostgresRepository(Repository):
 
         return [self.entity().from_record(fields, record) for record in records]
 
-    def insert_one(self, record: Entity, returning: List[AnyStr] = None) -> Union[None, Tuple]:
+    def insert_one(self, record: Entity, return_last_id: Optional[bool] = False) -> Any:
         """Insert one record from an entity instance.
 
         :param record: New record data.
-        :param returning: Returning fields of the insert query
+        :param return_last_id: Return last inserted id
         :return Union[None, Tuple]: Returning requested fields
         :raise RepositoryBuilderError: When record is empty
         """
@@ -142,17 +142,16 @@ class PostgresRepository(Repository):
         params = [Parameter(self.driver.placeholder()) for _ in range(len(values))]
 
         sql_query = Query.into(self._table).columns(*columns).insert(*params)
-        sql_query = sql.add_returning(sql_query, returning)
+        self.logger.debug(f"SQL: {str(sql_query)}")
 
-        self.logger.debug(f"SQL: {sql_query}")
+        self.driver.query_none(sql=str(sql_query), args=values)
 
-        if returning:
-            return self.driver.query_one(sql=sql_query, args=values)
+        if return_last_id:
+            return self.driver.query_one(sql=mysql.last_inserted_id_query())[0]
 
-        self.driver.query_none(sql=sql_query, args=values)
         return None
 
-    def insert_many(self, records: List[Entity], returning: List[AnyStr] = None) -> Union[None, List[Tuple]]:
+    def insert_many(self, records: List[Entity], returning: List[AnyStr] = None) -> NoReturn:
         """Insert many records at once from entity objects.
 
         :param records: List of new records with data.
@@ -186,15 +185,8 @@ class PostgresRepository(Repository):
             sql_query = sql_query.insert(*params)
             values.extend(data)
 
-        sql_query = sql.add_returning(sql_query, returning)
-
         self.logger.debug(f"SQL: {sql_query}")
-
-        if returning:
-            return self.driver.query(sql=sql_query, args=values)
-
         self.driver.query_none(sql=sql_query, args=values)
-        return None
 
     def update(self, data: Dict[AnyStr, Any], **kwargs) -> NoReturn:
         """Update some records with new data according filters.
