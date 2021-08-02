@@ -9,10 +9,12 @@ from typing import Any, AnyStr, Dict, NoReturn, Optional, Union
 
 import pymongo
 from pymongo.collection import Cursor
-from pymongo.results import (DeleteResult, InsertManyResult, InsertOneResult, UpdateResult)
+from pymongo.results import (DeleteResult, InsertManyResult, InsertOneResult,
+                             UpdateResult)
 
 from pydbrepo.drivers.driver import Driver
-from pydbrepo.errors import (BuilderError, DriverConfigError, DriverExecutionError, QueryError)
+from pydbrepo.errors import (BuilderError, DriverConfigError,
+                             DriverExecutionError, QueryError)
 from pydbrepo.helpers import mongo
 
 
