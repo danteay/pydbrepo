@@ -2,7 +2,8 @@
 extended to add more complex operations.
 """
 
-from typing import (Any, AnyStr, Dict, Iterable, List, NoReturn, Optional, Set, Tuple, Type, Union)
+from typing import (Any, AnyStr, Dict, Iterable, List, NoReturn, Optional, Set,
+                    Tuple, Type, Union)
 
 from pypika import Parameter
 from pypika import PostgreSQLQuery as Query

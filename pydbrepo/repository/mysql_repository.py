@@ -2,7 +2,8 @@
 extended to add more complex operations.
 """
 
-from typing import (Any, AnyStr, Dict, Iterable, List, NoReturn, Optional, Set, Type)
+from typing import (Any, AnyStr, Dict, Iterable, List, NoReturn, Optional, Set,
+                    Type)
 
 from pypika import MySQLQuery as Query
 from pypika import Parameter

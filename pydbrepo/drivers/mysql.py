@@ -134,13 +134,17 @@ class Mysql(Driver):
         if parsed.scheme != 'mysql':
             raise DriverConfigError('Invalid database URL scheme.')
 
-        return {
+        data = {
             'user': parsed.username,
             'password': parsed.password,
             'host': parsed.hostname,
             'port': parsed.port,
-            'database': parsed.path.split('/')[0]
         }
+
+        if parsed.path:
+            data['database'] = parsed.path[1:]
+
+        return data
 
     @staticmethod
     def _execute(cursor, sql: AnyStr, *args):
