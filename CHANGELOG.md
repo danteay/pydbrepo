@@ -1,3 +1,9 @@
+## v0.3.3 (2021-08-02)
+
+### Fix
+
+- obtain database name from url
+
 ## v0.3.2 (2021-08-02)
 
 ### Fix
