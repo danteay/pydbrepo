@@ -1,3 +1,9 @@
+## v0.3.4 (2021-08-02)
+
+### Fix
+
+- enum convertion to string
+
 ## v0.3.3 (2021-08-02)
 
 ### Fix
