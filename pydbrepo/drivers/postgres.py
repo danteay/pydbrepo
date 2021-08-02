@@ -157,7 +157,8 @@ class Postgres(Driver):
         :param autocommit: Auto commit transactions
         """
 
-        params = self._prepare_connection_parameters(url, user, pwd, host, port, database, autocommit)
+        self._params = self._prepare_connection_parameters(url, user, pwd, host, port, database, autocommit)
+        params = self._params
 
         commit = params['autocommit']
         del params['autocommit']
@@ -219,7 +220,16 @@ class Postgres(Driver):
 
         envs.update(params)
 
+        if envs['url'] is not None:
+            envs['host'] = None
+            envs['port'] = None
+            envs['database'] = None
+
         if envs['url'] is None and envs['user'] is None:
             raise DriverConfigError('Invalid connection params. Not user detected.')
 
         return envs
+
+    def __repr__(self):
+        """Postgres driver representation."""
+        return f"Postgres({str(self._params)})"

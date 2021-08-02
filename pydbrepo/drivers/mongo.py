@@ -98,8 +98,9 @@ class Mongo(Driver):
         :param kwargs: Any other pymongo.MongoClient configuration
         """
 
-        params = self._prepare_connection_parameters(url, user, pwd, host, port, database)
+        self._params = self._prepare_connection_parameters(url, user, pwd, host, port, database)
         kwargs = self._prepare_client_extra_params(**kwargs)
+        params = self._params
 
         self._database = params['database']
         del params['database']
@@ -183,6 +184,10 @@ class Mongo(Driver):
         }
 
         envs.update(params)
+
+        if envs['url'] is not None:
+            envs['host'] = None
+            envs['port'] = None
 
         if envs['url'] is None and envs['user'] is None:
             raise DriverConfigError('Invalid connection params. Not user detected.')
@@ -435,3 +440,7 @@ class Mongo(Driver):
 
         if kwargs['action'] != MongoAction.insert and 'filters' not in keys:
             raise QueryError(f"Action {kwargs['action']} needs filters param to be executed")
+
+    def __repr__(self):
+        """Mongo driver representation."""
+        return f"Mongo({str(self._params)})"

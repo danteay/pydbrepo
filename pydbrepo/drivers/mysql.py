@@ -58,7 +58,8 @@ class Mysql(Driver):
         :param autocommit: Auto commit transactions
         """
 
-        params = self._prepare_connection_parameters(url, user, pwd, host, port, database, autocommit)
+        self._params = self._prepare_connection_parameters(url, user, pwd, host, port, database, autocommit)
+        params = self._params
 
         commit = params['autocommit']
         del params['autocommit']
@@ -166,7 +167,6 @@ class Mysql(Driver):
         """
 
         self._validate_params({'sql'}, set(kwargs.keys()))
-
         cursor = self._conn.cursor(buffered=True)
 
         _ = self._execute(cursor, kwargs['sql'], *kwargs.get('args', []))
@@ -187,7 +187,6 @@ class Mysql(Driver):
         """
 
         self._validate_params({'sql'}, set(kwargs.keys()))
-
         cursor = self._conn.cursor(buffered=True)
 
         _ = self._execute(cursor, kwargs['sql'], *kwargs.get('args', []))
@@ -206,7 +205,6 @@ class Mysql(Driver):
         """
 
         self._validate_params({'sql'}, set(kwargs.keys()))
-
         cursor = self._conn.cursor()
 
         _ = self._execute(cursor, kwargs['sql'], *kwargs.get('args', []))
@@ -234,3 +232,7 @@ class Mysql(Driver):
 
     def reset_placeholder(self) -> NoReturn:
         """Reset place holder status (do nothing)"""
+
+    def __repr__(self):
+        """Mysql driver representation."""
+        return f"Mysql({str(self._params)})"
