@@ -6,7 +6,7 @@ from typing import AnyStr, List
 __all__ = ['EnumEntity']
 
 
-class EnumEntity(str, Enum):
+class EnumEntity(Enum):
     """Enumerable entity that will work as custom db enum types and his values"""
 
     @classmethod
