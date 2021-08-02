@@ -60,7 +60,12 @@ class MongoRepository(Repository):
             'offset': kwargs.get('offset')
         }
 
-        return self.driver.query_one(action=MongoAction.find, collection=self._collection, **params)
+        record = self.driver.query_one(action=MongoAction.find, collection=self._collection, **params)
+
+        if not record:
+            return None
+
+        return self.entity().from_dict(record)
 
     def find_many(self, **kwargs) -> Any:
         """Find one record from passed filters.
@@ -85,7 +90,12 @@ class MongoRepository(Repository):
             'offset': kwargs.get('offset', None)
         }
 
-        return self.driver.query(action=MongoAction.find, collection=self._collection, **params)
+        records = self.driver.query(action=MongoAction.find, collection=self._collection, **params)
+
+        if not records:
+            return []
+
+        return [self.entity().from_dict(record) for record in records]
 
     def insert_one(self, record: Entity, return_id: bool = False) -> Any:
         """Find one record from passed filters.

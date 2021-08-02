@@ -44,12 +44,12 @@ class Repository(ABC):
         self.entity = entity
 
     @property
-    def entity(self) -> Type:
+    def entity(self) -> Type[Entity]:
         """Return base entity model"""
         return self._entity
 
     @entity.setter
-    def entity(self, value: Type):
+    def entity(self, value: Type[Entity]):
         """Set property entity value"""
 
         if value is None:

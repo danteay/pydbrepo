@@ -3,7 +3,7 @@
 # pylint: disable=R0201
 
 import os
-from typing import Any, AnyStr, Dict, List, NoReturn, Tuple, Union
+from typing import Any, AnyStr, Dict, List, NoReturn, Optional, Tuple, Union
 
 import psycopg2
 
@@ -27,13 +27,13 @@ class Postgres(Driver):
 
     def __init__(
         self,
-        url: AnyStr = None,
-        user: AnyStr = None,
-        pwd: AnyStr = None,
-        host: AnyStr = None,
-        port: AnyStr = None,
-        database: AnyStr = None,
-        autocommit: bool = None,
+        url: Optional[AnyStr] = None,
+        user: Optional[AnyStr] = None,
+        pwd: Optional[AnyStr] = None,
+        host: Optional[AnyStr] = None,
+        port: Optional[AnyStr] = None,
+        database: Optional[AnyStr] = None,
+        autocommit: Optional[bool] = None,
     ):
         super().__init__()
         self._build_connection(url, user, pwd, host, port, database, autocommit)
@@ -120,7 +120,7 @@ class Postgres(Driver):
         return '%s'
 
     def reset_placeholder(self) -> NoReturn:
-        """Reset place holder status"""
+        """Reset place holder status (do nothing)"""
 
     @staticmethod
     def _execute(cursor, sql: AnyStr, *args):

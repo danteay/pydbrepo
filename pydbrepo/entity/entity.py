@@ -2,7 +2,7 @@
 is a data representation of a row returned from any query.
 """
 
-from typing import Any, AnyStr, Dict, List, Tuple
+from typing import Any, AnyStr, Dict, Set, Tuple
 
 from pydbrepo.errors import SerializationError
 
@@ -90,7 +90,7 @@ class Entity:
         return instance
 
     @classmethod
-    def from_record(cls, fields: List[AnyStr], record: Tuple[Any]) -> Any:
+    def from_record(cls, fields: Set[AnyStr], record: Tuple[Any]) -> Any:
         """Create an instance from a tuple given by the database driver.
         :param fields: List of field names to serialize
         :param record: DB record data in tuple format
@@ -102,10 +102,10 @@ class Entity:
 
         data = {}
 
-        for index, _ in enumerate(fields):
-            data[fields[index]] = record[index]
+        for index, field in enumerate(fields):
+            data[field] = record[index]
 
-        return cls.from_dict(data)
+        return cls().from_dict(data)
 
     def __str__(self) -> AnyStr:
         """String conversion definition."""
@@ -116,3 +116,9 @@ class Entity:
         """Entity representation."""
 
         return f"{self.__class__.__name__}({self.to_dict(skip_none=False)})"
+
+    def __copy__(self):
+        """Copy implementation"""
+
+        cls = self.__class__
+        return cls.from_dict(self.to_dict())
