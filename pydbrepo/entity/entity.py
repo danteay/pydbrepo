@@ -2,7 +2,7 @@
 is a data representation of a row returned from any query.
 """
 
-from typing import Any, AnyStr, Dict, List, Set, Tuple, Union
+from typing import (Any, AnyStr, Dict, Iterable, List, Mapping, Set, Tuple, Union)
 
 from pydbrepo.errors import SerializationError
 
@@ -28,7 +28,7 @@ class Entity:
             if key is None:
                 continue
 
-            skip, value = self._process_dict_values(key, skip_none)
+            skip, value = self.__process_dict_values(key, skip_none)
 
             if skip:
                 continue
@@ -37,7 +37,7 @@ class Entity:
 
         return data
 
-    def _process_dict_values(self, key: AnyStr, skip_none: bool) -> Tuple[bool, Any]:
+    def __process_dict_values(self, key: AnyStr, skip_none: bool) -> Tuple[bool, Any]:
         """Process property values to insert on dict conversion.
 
         :param key: Property name
@@ -53,14 +53,14 @@ class Entity:
         if name in {'method', 'function'}:
             return True, None
 
-        value = self._get_property_dict_value(key)
+        value = self.__get_property_dict_value(key)
 
         if value is None and skip_none:
             return True, None
 
         return False, value
 
-    def _get_property_dict_value(self, name: AnyStr) -> Any:
+    def __get_property_dict_value(self, name: AnyStr) -> Any:
         """Get the dict value of a model property.
 
         :param name: Property name
@@ -68,11 +68,39 @@ class Entity:
         """
 
         value = getattr(self, name, None)
+        return self.__property_to_dict(value)
+
+    def __property_to_dict(self, value: Any) -> Any:
+        """Convert any value of a property into hist to_dict function equivalent.
+
+        :param value: Property value
+        :return Any: Converted value to dict or corresponding value
+        """
 
         if isinstance(value, Entity):
             value = value.to_dict()
 
+        value_type = type(value)
+
+        if issubclass(value_type, Iterable) and not isinstance(value, Mapping) and value_type != str:
+            value = self.__items_to_dict(value)
+
         return value
+
+    def __items_to_dict(self, value: Iterable) -> Iterable:
+        """Convert to dict all the items of an iterable object.
+
+        :param value: Iterable object to ve converted
+        :return Iterable: Iterable object with casted items to dict
+        """
+
+        data = []
+
+        for item in value:
+            item = self.__property_to_dict(item)
+            data.append(item)
+
+        return type(value)(data)
 
     @classmethod
     def from_dict(cls, data: Dict[AnyStr, Any]) -> Any:
