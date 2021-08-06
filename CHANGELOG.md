@@ -1,3 +1,9 @@
+## v0.4.1 (2021-08-06)
+
+### Fix
+
+- to_dict error when a property is an iterable
+
 ## v0.4.0 (2021-08-06)
 
 ### Feat
