@@ -2,7 +2,7 @@
 is a data representation of a row returned from any query.
 """
 
-from typing import Any, AnyStr, Dict, Set, Tuple
+from typing import Any, AnyStr, Dict, List, Set, Tuple, Union
 
 from pydbrepo.errors import SerializationError
 
@@ -11,6 +11,9 @@ __all__ = ['Entity']
 
 class Entity:
     """Entity class definition"""
+
+    def __init__(self):
+        self.__dict__ = self.to_dict(skip_none=False)
 
     def to_dict(self, skip_none: bool = True) -> Dict[AnyStr, Any]:
         """Serialize all object data into a dict.
@@ -22,6 +25,9 @@ class Entity:
         data = {}
 
         for key in set(self.__dir__()):
+            if key is None:
+                continue
+
             skip, value = self._process_dict_values(key, skip_none)
 
             if skip:
@@ -77,9 +83,13 @@ class Entity:
         """
 
         instance = cls()
-        keys = set(instance.to_dict(skip_none=False).keys())
+        keys = set(cls.__dict__.keys())
 
         for key, value in data.items():
+            # skip keys that start with __
+            if len(key) >= 3 and key[:2] == '__':
+                continue
+
             # Validate if the name starts with underscore and remove it from the name
             if key[:1] == '_':
                 key = key[1:]
@@ -90,8 +100,9 @@ class Entity:
         return instance
 
     @classmethod
-    def from_record(cls, fields: Set[AnyStr], record: Tuple[Any]) -> Any:
+    def from_record(cls, fields: Union[List[Any], Set[Any], Tuple[Any, ...]], record: Tuple[Any, ...]) -> Any:
         """Create an instance from a tuple given by the database driver.
+
         :param fields: List of field names to serialize
         :param record: DB record data in tuple format
         :return: Instance object
@@ -116,9 +127,3 @@ class Entity:
         """Entity representation."""
 
         return f"{self.__class__.__name__}({self.to_dict(skip_none=False)})"
-
-    def __copy__(self):
-        """Copy implementation"""
-
-        cls = self.__class__
-        return cls.from_dict(self.to_dict())

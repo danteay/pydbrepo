@@ -20,3 +20,4 @@ coverage.xml
 
 # Single files
 .DS_Store
+debug.py
