@@ -1,3 +1,9 @@
+## v0.4.0 (2021-08-06)
+
+### Feat
+
+- add item casting to iterable objects
+
 ## v0.3.4 (2021-08-02)
 
 ### Fix
