@@ -33,11 +33,11 @@ class MongoActionType(str, Enum):
     none = 'none'
 
 
-class MongoOrder(str, Enum):
+class MongoOrder(Enum):
     """Define find query ordering."""
 
-    asc = 1
-    desc = -1
+    asc = pymongo.ASCENDING
+    desc = pymongo.DESCENDING
 
 
 class Mongo(Driver):
