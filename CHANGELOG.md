@@ -1,3 +1,9 @@
+## v0.4.2 (2021-08-10)
+
+### Fix
+
+- Fix str cast of MongoOrder enum
+
 ## v0.4.1 (2021-08-06)
 
 ### Fix
