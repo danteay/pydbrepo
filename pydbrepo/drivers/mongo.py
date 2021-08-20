@@ -5,7 +5,7 @@
 import os
 import ssl
 from enum import Enum
-from typing import Any, AnyStr, Dict, NoReturn, Optional, Union
+from typing import Any, AnyStr, Dict, NoReturn, Optional, Union, Set
 
 import pymongo
 from pymongo.collection import Cursor
@@ -43,75 +43,61 @@ class MongoOrder(Enum):
 class Mongo(Driver):
     """Driver implementation for MongoDB.
 
-    :param url: Database connection url
+    Environment variables:
+        DATABASE_URL: [1]
+        DATABASE_USER: Database username
+        DATABASE_PASSWORD: Database user password
+        DATABASE_HOST: default('localhost') Database host
+        DATABASE_PORT: default('27017') Database port
+        DATABASE_NAME: Database name
+
+    :type url: str
+    :param url: Database connection url with standard format [1]
+
+    :type user: str
     :param user: Database user name
+
+    :type pwd: str
     :param pwd: Database user password
+
+    :type host: str
     :param host: Database host
+
+    :type port: str
     :param port: Database port number
+
+    :type database: str
     :param database: Database name
+
+    :type kwargs: named variadic
     :param kwargs: Any other pymongo.MongoClient configuration
+
+    [1] Standard URL format: mongodb[+srv]://<username>:<password>@<host>:<port>/<database>[?<arguments>]
     """
 
     def __init__(
         self,
-        url: AnyStr = None,
-        user: AnyStr = None,
-        pwd: AnyStr = None,
-        host: AnyStr = None,
-        port: AnyStr = None,
-        database: AnyStr = None,
+        url: Optional[AnyStr] = None,
+        user: Optional[AnyStr] = None,
+        pwd: Optional[AnyStr] = None,
+        host: Optional[AnyStr] = None,
+        port: Optional[AnyStr] = None,
+        database: Optional[AnyStr] = None,
         **kwargs,
     ):
         super().__init__()
-        self._database = None
-
-        self._build_connection(url, user, pwd, host, port, database, **kwargs)
+        self.__database = None
+        self.__build_connection(url, user, pwd, host, port, database, **kwargs)
 
     @property
     def database(self) -> AnyStr:
         """return stored database mane"""
-        return self._database
+        return self.__database
 
     @database.setter
     def database(self, value: AnyStr):
         """Set nu database name for use in connection"""
-        self._database = value
-
-    def _build_connection(
-        self,
-        url: AnyStr = None,
-        user: AnyStr = None,
-        pwd: AnyStr = None,
-        host: AnyStr = None,
-        port: AnyStr = None,
-        database: AnyStr = None,
-        **kwargs,
-    ) -> NoReturn:
-        """start real driver connection from parameters.
-
-        :param url: Database connection url
-        :param user: Database user name
-        :param pwd: Database user password
-        :param host: Database host
-        :param port: Database port number
-        :param database: Database name
-        :param kwargs: Any other pymongo.MongoClient configuration
-        """
-
-        self._params = self._prepare_connection_parameters(url, user, pwd, host, port, database)
-        kwargs = self._prepare_client_extra_params(**kwargs)
-        params = self._params
-
-        self._database = params['database']
-        del params['database']
-
-        if params['url'] is not None:
-            self._conn = pymongo.MongoClient(params['url'], **kwargs)
-            return
-
-        self._conn = pymongo.MongoClient(
-            host=params['host'], port=int(params['port']), username=params['user'], password=params['pwd'], **kwargs
-        )
+        self.__database = value
 
     def ping(self):
         """Check database Connection.
@@ -119,13 +105,13 @@ class Mongo(Driver):
         :raise DriverConfigError: In case of Mongo ping command fails
         """
 
-        res = self._conn[self._database].command("ping")
+        res = self.__conn[self.__database].command("ping")
 
         if res["ok"] != 1.0:
             raise DriverConfigError("Database connection error")
 
     @staticmethod
-    def _prepare_client_extra_params(**kwargs) -> Dict[AnyStr, Any]:
+    def __prepare_client_extra_params(**kwargs) -> Dict[AnyStr, Any]:
         """Verify if there are specific configurations for MongoClient, if not add some basic config.
 
         :param kwargs: Client extra configuration
@@ -143,7 +129,7 @@ class Mongo(Driver):
         return kwargs
 
     @staticmethod
-    def _prepare_connection_parameters(
+    def __prepare_connection_parameters(
         url: AnyStr = None,
         user: AnyStr = None,
         pwd: AnyStr = None,
@@ -159,7 +145,9 @@ class Mongo(Driver):
         :param host: Database host
         :param port: Database port number
         :param database: Database name
+
         :return Dict[AnyStr, AnyStr]: Connection parameters
+
         :raise DriverConfigError: If connection url and connection user are None at the same time
         """
 
@@ -210,7 +198,7 @@ class Mongo(Driver):
         :return Any: List of found elements
         """
 
-        self._validate_kwargs(**kwargs)
+        self.__validate_kwargs(**kwargs)
 
         if 'type_' in set(kwargs.keys()):
             del kwargs['type_']
@@ -232,7 +220,7 @@ class Mongo(Driver):
         :return Any: List of found elements
         """
 
-        self._validate_kwargs(**kwargs)
+        self.__validate_kwargs(**kwargs)
 
         if 'type_' in set(kwargs.keys()):
             del kwargs['type_']
@@ -252,7 +240,7 @@ class Mongo(Driver):
             offset: Optional[int] -> Number of omitted documents before the result
         """
 
-        self._validate_kwargs(**kwargs)
+        self.__validate_kwargs(**kwargs)
 
         if 'type_' in set(kwargs.keys()):
             del kwargs['type_']
@@ -269,11 +257,11 @@ class Mongo(Driver):
 
     def close(self) -> NoReturn:
         """Close current connection."""
-        self._conn.close()
+        self.__conn.close()
 
     def get_real_driver(self) -> Any:
         """Return real driver connection"""
-        return self._conn
+        return self.__conn
 
     def placeholder(self, **kwargs) -> AnyStr:
         """Query placeholder not needed on Mongo queries"""
@@ -306,25 +294,27 @@ class Mongo(Driver):
         :param order: Query ordering method
         :param limit: Number or retrieved documents for the query
         :param offset: Number of omitted documents before the result
+
         :return Any: Result of query execution
+
         :raise DriverExecutionError: When invalid mongo operation is defined
         """
 
         if action == MongoAction.find:
-            return self._find(type_, collection, filters, limit, offset, order_by, order)
+            return self.__find(type_, collection, filters, limit, offset, order_by, order)
 
         if action == MongoAction.insert:
-            return self._insert(type_, collection, data)
+            return self.__insert(type_, collection, data)
 
         if action == MongoAction.update:
-            return self._update(type_, collection, filters, data)
+            return self.__update(type_, collection, filters, data)
 
         if action == MongoAction.delete:
-            return self._delete(type_, collection, filters)
+            return self.__delete(type_, collection, filters)
 
         raise DriverExecutionError(f'Invalid {action} operation was called')
 
-    def _find(
+    def __find(
         self,
         type_: MongoActionType,
         collection: AnyStr,
@@ -339,18 +329,21 @@ class Mongo(Driver):
         :param type_: Variation type of the mongo operation
         :param collection: Name of the database collection where will be performed the action
         :param filters: Query filters for query execution
-        :param order_by: Optional[MongoOrder] -> query ordering method
-        :param order: Optional[int] -> Filed that should be ordered in query
-        :param limit: Optional[int] -> Number or retrieved documents for the query
-        :param offset: Optional[int] -> Number of omitted documents before the result
-        :return Callable: function to execute operation
+        :param order_by: Query ordering field
+        :param order: Query ordering method
+        :param limit: Number or retrieved documents for the query
+        :param offset: Number of omitted documents before the result
+
+        :return Cursor: Raw Driver result
+
+        :raise DriverExecutionError: When the query variation is not supported
         """
 
         if type_ == MongoActionType.one:
-            return self._conn[self._database][collection].find_one(filters)
+            return self.__conn[self.__database][collection].find_one(filters)
 
         if type_ == MongoActionType.many:
-            find = self._conn[self._database][collection].find(filters)
+            find = self.__conn[self.__database][collection].find(filters)
             find = mongo.add_limit(find, limit)
             find = mongo.add_offset(find, offset)
             find = mongo.add_order_by(find, order_by, order)
@@ -358,30 +351,36 @@ class Mongo(Driver):
 
         raise DriverExecutionError(f'Invalid variation {type_} of find method')
 
-    def _insert(self, type_: MongoActionType, collection: AnyStr,
-                data: Dict[AnyStr, Any]) -> Union[InsertOneResult, InsertManyResult]:
+    def __insert(
+        self, type_: MongoActionType, collection: AnyStr, data: Dict[AnyStr, Any]
+    ) -> Union[InsertOneResult, InsertManyResult]:
         """Return insert method variation of MongoClient connection.
 
         :param type_: Variation type of the mongo operation
         :param collection: Name of the database collection where will be performed the action
-        :return Callable: function to execute operation
+        :param data: New data to be inserted
+
+        :return Union[InsertOneResult, InsertManyResult]: Raw result of driver operation
+
+        :raise BuilderError: When insert action is called with empty data
+        :raise DriverExecutionError: When the query variation is not supported
         """
 
         if type_ == MongoActionType.one:
             if data is None:
                 raise BuilderError("Can't insert empty data")
 
-            return self._conn[self._database][collection].insert_one(data)
+            return self.__conn[self.__database][collection].insert_one(data)
 
         if type_ in {MongoActionType.none, MongoActionType.many}:
             if len(data) < 1:
                 raise BuilderError("Can't insert empty data")
 
-            return self._conn[self._database][collection].insert_many(data)
+            return self.__conn[self.__database][collection].insert_many(data)
 
         raise DriverExecutionError(f'Invalid variation {type_} of insert method')
 
-    def _update(
+    def __update(
         self,
         type_: MongoActionType,
         collection: AnyStr,
@@ -394,53 +393,107 @@ class Mongo(Driver):
         :param collection: Name of the database collection where will be performed the action
         :param filters: Filters to apply on Mongo query
         :param data: Data to be used by Mongo query
-        :return Callable: function to execute operation
+
+        :return UpdateResult: Raw result of driver operation
+
+        :raise BuilderError: When update action is called with empty data
+        :raise DriverExecutionError: When the query variation is not supported
         """
 
         if type_ == MongoActionType.one:
             if data is None:
                 raise BuilderError("Can't update empty data")
 
-            return self._conn[self._database][collection].update_one(filters, {"$set": data})
+            return self.__conn[self.__database][collection].update_one(filters, {"$set": data})
 
         if type_ in {MongoActionType.none, MongoActionType.many}:
             if len(data) < 1:
                 raise BuilderError("Can't update empty data")
 
-            return self._conn[self._database][collection].update_many(filters, {"$set": data})
+            return self.__conn[self.__database][collection].update_many(filters, {"$set": data})
 
         raise DriverExecutionError(f'Invalid variation {type_} of update method')
 
-    def _delete(self, type_: MongoActionType, collection: AnyStr, filters: Dict[AnyStr, Any]) -> DeleteResult:
+    def __delete(
+        self, type_: MongoActionType, collection: AnyStr, filters: Dict[AnyStr, Any]
+    ) -> DeleteResult:
         """Return delete method variation of MongoClient connection.
 
         :param type_: Variation type of the mongo operation
         :param collection: Name of the database collection where will be performed the action
         :param filters: Filters to apply on Mongo query
         :return Callable: function to execute operation
+        :raise DriverExecutionError: When the query variation is not supported
         """
 
         if type_ == MongoActionType.one:
-            return self._conn[self._database][collection].delete_one(filters)
+            return self.__conn[self.__database][collection].delete_one(filters)
 
         if type_ in {MongoActionType.none, MongoActionType.many}:
-            return self._conn[self._database][collection].delete_many(filters)
+            return self.__conn[self.__database][collection].delete_many(filters)
 
         raise DriverExecutionError(f'Invalid variation {type_} of delete method')
 
-    def _validate_kwargs(self, **kwargs) -> NoReturn:
+    def __validate_kwargs(self, **kwargs) -> NoReturn:
         """Validation for query kwargs and check if there are the necessary options.
 
+        :param kwargs: All possible configurations of a Mongo query
         :raise QueryError: If filters is not present in actions different of insert
         """
 
         keys = set(kwargs.keys())
 
         self._validate_params({'action', 'collection'}, keys)
+        self.__validate_filter(kwargs['action'], keys)
 
-        if kwargs['action'] != MongoAction.insert and 'filters' not in keys:
-            raise QueryError(f"Action {kwargs['action']} needs filters param to be executed")
+    @staticmethod
+    def __validate_filter(action: MongoAction, keys: Set[AnyStr]) -> NoReturn:
+        """Validate if the current action needs filters mandatory.
+
+        :param action: Current query action
+        :param keys: Current configuration names for the query
+        :raise QueryError: If query action needs filters and this are not configured
+        """
+
+        if action != MongoAction.insert and 'filters' not in keys:
+            raise QueryError(f'Action {action} needs filters to be executed')
+
+    def __build_connection(
+        self,
+        url: Optional[AnyStr] = None,
+        user: Optional[AnyStr] = None,
+        pwd: Optional[AnyStr] = None,
+        host: Optional[AnyStr] = None,
+        port: Optional[AnyStr] = None,
+        database: Optional[AnyStr] = None,
+        **kwargs,
+    ) -> NoReturn:
+        """start real driver connection from parameters.
+
+        :param url: Database connection url
+        :param user: Database user name
+        :param pwd: Database user password
+        :param host: Database host
+        :param port: Database port number
+        :param database: Database name
+        :param kwargs: Any other pymongo.MongoClient configuration
+        """
+
+        self.__params = self.__prepare_connection_parameters(url, user, pwd, host, port, database)
+        kwargs = self.__prepare_client_extra_params(**kwargs)
+        params = self.__params
+
+        self.__database = params['database']
+        del params['database']
+
+        if params['url'] is not None:
+            self.__conn = pymongo.MongoClient(params['url'], **kwargs)
+            return
+
+        self.__conn = pymongo.MongoClient(
+            host=params['host'], port=int(params['port']), username=params['user'], password=params['pwd'], **kwargs
+        )
 
     def __repr__(self):
         """Mongo driver representation."""
-        return f"Mongo({str(self._params)})"
+        return f"Mongo({str(self.__params)})"

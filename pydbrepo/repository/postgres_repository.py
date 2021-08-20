@@ -75,7 +75,7 @@ class PostgresRepository(Repository):
 
         return self.entity().from_record(fields, record)
 
-    def find_many(self, **kwargs) -> Union[None, List[Any]]:
+    def find_many(self, **kwargs) -> List[Any]:
         """Find one record from passed filters.
 
         :param kwargs: Parameters that will be process by the method.
@@ -116,7 +116,7 @@ class PostgresRepository(Repository):
         records = self.driver.query(sql=str(sql_query), args=params)
 
         if not records:
-            return None
+            return []
 
         return [self.entity().from_record(fields, record) for record in records]
 
@@ -251,12 +251,14 @@ class PostgresRepository(Repository):
 
         if self._table is None:
             raise BuilderError(
-                f"Can't perform {operation} action without a default table. Please override the method.",
+                f"Can't perform {operation} action without a default table. "
+                "Please override the method.",
             )
 
         if self.entity is None:
             raise BuilderError(
-                f"Can't perform {operation} action without a default base model. Please override the method.",
+                f"Can't perform {operation} action without a default base model. "
+                "Please override the method.",
             )
 
     def _prepare_selected_fields(self, fields: Iterable[AnyStr]) -> Set[AnyStr]:

@@ -3,7 +3,7 @@
 # pylint: disable=R0201
 
 import os
-from typing import Any, AnyStr, Dict, List, NoReturn, Optional, Tuple, Union
+from typing import Any, AnyStr, Dict, List, NoReturn, Optional, Tuple
 
 import psycopg2
 
@@ -14,15 +14,39 @@ __all__ = ['Postgres']
 
 
 class Postgres(Driver):
-    """Postgres connection manager.
+    """Postgres connection Driver.
 
-    :param url: Database connection url
+    Environment variables:
+        DATABASE_URL: [1]
+        DATABASE_USER: Database user name
+        DATABASE_PASSWORD: Database user password
+        DATABASE_HOST: default('localhost') Database host
+        DATABASE_PORT: default('5432') database connection port
+        DATABASE_NAME: default('postgres') Database name
+        DATABASE_COMMIT: default('false') Auto commit transaction flag
+
+    :type url: str
+    :param url: Database connection url with standard format [1]
+
+    :type user: str
     :param user: Database user name
+
+    :type pwd: str
     :param pwd: Database user password
+
+    :type host: str
     :param host: Database host
+
+    :type port: str
     :param port: Database port number
+
+    :type database: str
     :param database: Database name
-    :param autocommit: Auto commit transactions
+
+    :type autocommit: bool
+    :param autocommit: Auto commit transactions flag
+
+    [1] Standard URL format: postgres://<user>:<password>@<host>:<port>/<database>
     """
 
     def __init__(
@@ -36,7 +60,7 @@ class Postgres(Driver):
         autocommit: Optional[bool] = None,
     ):
         super().__init__()
-        self._build_connection(url, user, pwd, host, port, database, autocommit)
+        self.__build_connection(url, user, pwd, host, port, database, autocommit)
 
     def query(self, **kwargs) -> List[Tuple]:
         """Execute a query and return all values.
@@ -50,9 +74,9 @@ class Postgres(Driver):
 
         self._validate_params({'sql'}, set(kwargs.keys()))
 
-        cursor = self._conn.cursor()
+        cursor = self.__conn.cursor()
 
-        _ = self._execute(cursor, kwargs['sql'], *kwargs.get('args', []))
+        _ = self.__execute(cursor, kwargs['sql'], *kwargs.get('args', []))
         res = cursor.fetchall()
 
         cursor.close()
@@ -71,9 +95,9 @@ class Postgres(Driver):
 
         self._validate_params({'sql'}, set(kwargs.keys()))
 
-        cursor = self._conn.cursor()
+        cursor = self.__conn.cursor()
 
-        _ = self._execute(cursor, kwargs['sql'], *kwargs.get('args', []))
+        _ = self.__execute(cursor, kwargs['sql'], *kwargs.get('args', []))
         res = cursor.fetchone()
 
         cursor.close()
@@ -90,26 +114,26 @@ class Postgres(Driver):
 
         self._validate_params({'sql'}, set(kwargs.keys()))
 
-        cursor = self._conn.cursor()
+        cursor = self.__conn.cursor()
 
-        _ = self._execute(cursor, kwargs['sql'], *kwargs.get('args', []))
+        _ = self.__execute(cursor, kwargs['sql'], *kwargs.get('args', []))
         cursor.close()
 
     def commit(self) -> NoReturn:
         """Commit transaction in DB."""
-        self._conn.commit()
+        self.__conn.commit()
 
     def rollback(self) -> NoReturn:
         """Rollback transaction."""
-        self._conn.rollback()
+        self.__conn.rollback()
 
     def close(self) -> NoReturn:
         """Close database connection."""
-        self._conn.close()
+        self.__conn.close()
 
     def get_real_driver(self) -> Any:
         """Get real driver connection instance."""
-        return self._conn
+        return self.__conn
 
     def placeholder(self, **kwargs) -> AnyStr:
         """Return the next place holder param for prepared statements.
@@ -123,7 +147,7 @@ class Postgres(Driver):
         """Reset place holder status (do nothing)"""
 
     @staticmethod
-    def _execute(cursor, sql: AnyStr, *args):
+    def __execute(cursor, sql: AnyStr, *args):
         """Execute query and attempt to replace with arguments.
 
         :param cursor: Connection cursor statement
@@ -136,15 +160,15 @@ class Postgres(Driver):
 
         return cursor.execute(sql, tuple(args))
 
-    def _build_connection(
+    def __build_connection(
         self,
-        url: AnyStr = None,
-        user: AnyStr = None,
-        pwd: AnyStr = None,
-        host: AnyStr = None,
-        port: AnyStr = None,
-        database: AnyStr = None,
-        autocommit: bool = None,
+        url: Optional[AnyStr] = None,
+        user: Optional[AnyStr] = None,
+        pwd: Optional[AnyStr] = None,
+        host: Optional[AnyStr] = None,
+        port: Optional[AnyStr] = None,
+        database: Optional[AnyStr] = None,
+        autocommit: Optional[bool] = None,
     ) -> NoReturn:
         """start real driver connection from parameters.
 
@@ -157,32 +181,34 @@ class Postgres(Driver):
         :param autocommit: Auto commit transactions
         """
 
-        self._params = self._prepare_connection_parameters(url, user, pwd, host, port, database, autocommit)
-        params = self._params
+        self.__params = self.__prepare_connection_parameters(
+            url, user, pwd, host, port, database, autocommit
+        )
 
+        params = self.__params
         commit = params['autocommit']
         del params['autocommit']
 
         if params['url'] is not None:
-            self._conn = psycopg2.connect(params['url'])
-            self._conn.autocommit = commit
+            self.__conn = psycopg2.connect(params['url'])
+            self.__conn.autocommit = commit
             return
 
         del params['url']
 
-        self._conn = psycopg2.connect(**params)
-        self._conn.autocommit = commit
+        self.__conn = psycopg2.connect(**params)
+        self.__conn.autocommit = commit
 
     @staticmethod
-    def _prepare_connection_parameters(
-        url: AnyStr = None,
-        user: AnyStr = None,
-        pwd: AnyStr = None,
-        host: AnyStr = None,
-        port: AnyStr = None,
-        database: AnyStr = None,
-        autocommit: bool = None,
-    ) -> Dict[AnyStr, Union[AnyStr, bool]]:
+    def __prepare_connection_parameters(
+        url: Optional[AnyStr] = None,
+        user: Optional[AnyStr] = None,
+        pwd: Optional[AnyStr] = None,
+        host: Optional[AnyStr] = None,
+        port: Optional[AnyStr] = None,
+        database: Optional[AnyStr] = None,
+        autocommit: Optional[bool] = None,
+    ) -> Dict[AnyStr, Any]:
         """Validate connection parameters an try to fill it from env vars if they are not set.
 
         :param url: Database connection url
@@ -192,7 +218,7 @@ class Postgres(Driver):
         :param port: Database port number
         :param database: Database name
         :param autocommit: Auto commit transactions
-        :return Dict[AnyStr, Union[AnyStr, bool]]: Connection parameters
+        :return Dict[AnyStr, Any]: Connection parameters
         :raise DriverConfigError: If connection url and connection user are None at the same time
         """
 
@@ -232,4 +258,4 @@ class Postgres(Driver):
 
     def __repr__(self):
         """Postgres driver representation."""
-        return f"Postgres({str(self._params)})"
+        return f"Postgres({str(self.__params)})"
