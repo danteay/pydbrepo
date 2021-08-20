@@ -75,7 +75,7 @@ class MysqlRepository(Repository):
 
         return self.entity().from_record(fields, record)
 
-    def find_many(self, **kwargs) -> Optional[List[Any]]:
+    def find_many(self, **kwargs) -> List[Any]:
         """Find one record from passed filters.
 
         :param kwargs: Parameters that will be process by the method.
@@ -116,7 +116,7 @@ class MysqlRepository(Repository):
         records = self.driver.query(sql=str(sql_query), args=params)
 
         if not records:
-            return None
+            return []
 
         return [self.entity().from_record(fields, record) for record in records]
 

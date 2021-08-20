@@ -69,7 +69,7 @@ class Repository(ABC):
         raise NotImplementedError('find_one method is not implemented.')
 
     @abstractmethod
-    def find_many(self, **kwargs) -> Union[None, List[Any]]:
+    def find_many(self, **kwargs) -> List[Any]:
         """Find many records from passed filters."""
         raise NotImplementedError('find_many method is not implemented.')
 

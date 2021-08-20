@@ -14,7 +14,13 @@ help:
 
 .PHONY: help Makefile
 
+autodoc:
+	@rm -rf api/*
+	@sphinx-apidoc -o ./api ../pydbrepo
+
 # Catch-all target: route all unknown targets to Sphinx using the new
 # "make mode" option.  $(O) is meant as a shortcut for $(SPHINXOPTS).
 %: Makefile
+	@rm -rf $(BUILDDIR)
 	@$(SPHINXBUILD) -M $@ "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS) $(O)
+

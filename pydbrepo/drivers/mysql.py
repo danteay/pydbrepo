@@ -13,15 +13,39 @@ from pydbrepo.errors import DriverConfigError
 
 
 class Mysql(Driver):
-    """Mysql Driver class.
+    """Mysql connection Driver.
 
-    :param url: Database connection url
+    Environment variables:
+        DATABASE_URL: [1]
+        DATABASE_USER: default('root') Database username
+        DATABASE_PASSWORD: Database user password
+        DATABASE_HOST: default('localhost') Database host
+        DATABASE_PORT: default('3306') Database connection port
+        DATABASE_NAME: Database name
+        DATABASE_COMMIT: default('false') Auto commit transaction flag
+
+    :type url: str
+    :param url: Database connection url with standard format [1]
+
+    :type user: str
     :param user: Database user name
+
+    :type pwd: str
     :param pwd: Database user password
+
+    :type host: str
     :param host: Database host
+
+    :type port: str
     :param port: Database port number
+
+    :type database: str
     :param database: Database name
+
+    :type autocommit: bool
     :param autocommit: Auto commit transactions
+
+    [1] Standard URL format: mysql://<user>:<password>@<host>:<port>/<database>
     """
 
     def __init__(
@@ -35,9 +59,9 @@ class Mysql(Driver):
         autocommit: Optional[bool] = None,
     ):
         super().__init__()
-        self._build_connection(url, user, pwd, host, port, database, autocommit)
+        self.__build_connection(url, user, pwd, host, port, database, autocommit)
 
-    def _build_connection(
+    def __build_connection(
         self,
         url: Optional[AnyStr] = None,
         user: Optional[AnyStr] = None,
@@ -58,16 +82,16 @@ class Mysql(Driver):
         :param autocommit: Auto commit transactions
         """
 
-        self._params = self._prepare_connection_parameters(url, user, pwd, host, port, database, autocommit)
-        params = self._params
+        self.__params = self.__prepare_connection_parameters(url, user, pwd, host, port, database, autocommit)
+        params = self.__params
 
         commit = params['autocommit']
         del params['autocommit']
 
-        self._conn = connector.connect(**params)
-        self._conn.autocommit = commit
+        self.__conn = connector.connect(**params)
+        self.__conn.autocommit = commit
 
-    def _prepare_connection_parameters(
+    def __prepare_connection_parameters(
         self,
         url: Optional[AnyStr] = None,
         user: Optional[AnyStr] = None,
@@ -87,7 +111,6 @@ class Mysql(Driver):
         :param database: Database name
         :param autocommit: Auto commit transactions
         :return Dict[AnyStr, Union[AnyStr, bool]]: Connection parameters
-        :raise DriverConfigError: If connection url and connection user are None at the same time
         """
 
         params = {
@@ -113,17 +136,18 @@ class Mysql(Driver):
         }
 
         envs.update(params)
-        envs.update(self._parse_url_connection(envs['url']))
+        envs.update(self.__parse_url_connection(envs['url']))
         del envs['url']
 
         return envs
 
     @staticmethod
-    def _parse_url_connection(url: AnyStr) -> Dict[AnyStr, Any]:
+    def __parse_url_connection(url: AnyStr) -> Dict[AnyStr, Any]:
         """Parse an standard URL and return his params.
 
         :param url: Standard DB connection url
         :return Dict[AnyStr, Any]: Connection params
+        :raise DriverConfigError: If connection url schema is different from `mysql`
         """
 
         if url is None:
@@ -147,7 +171,7 @@ class Mysql(Driver):
         return data
 
     @staticmethod
-    def _execute(cursor, sql: AnyStr, *args):
+    def __execute(cursor, sql: AnyStr, *args):
         """Execute query and attempt to replace with arguments.
 
         :param cursor: Connection cursor statement
@@ -171,9 +195,9 @@ class Mysql(Driver):
         """
 
         self._validate_params({'sql'}, set(kwargs.keys()))
-        cursor = self._conn.cursor(buffered=True)
+        cursor = self.__conn.cursor(buffered=True)
 
-        _ = self._execute(cursor, kwargs['sql'], *kwargs.get('args', []))
+        _ = self.__execute(cursor, kwargs['sql'], *kwargs.get('args', []))
         res = cursor.fetchall()
 
         cursor.close()
@@ -191,9 +215,9 @@ class Mysql(Driver):
         """
 
         self._validate_params({'sql'}, set(kwargs.keys()))
-        cursor = self._conn.cursor(buffered=True)
+        cursor = self.__conn.cursor(buffered=True)
 
-        _ = self._execute(cursor, kwargs['sql'], *kwargs.get('args', []))
+        _ = self.__execute(cursor, kwargs['sql'], *kwargs.get('args', []))
         res = cursor.fetchone()
 
         cursor.close()
@@ -209,26 +233,26 @@ class Mysql(Driver):
         """
 
         self._validate_params({'sql'}, set(kwargs.keys()))
-        cursor = self._conn.cursor()
+        cursor = self.__conn.cursor()
 
-        _ = self._execute(cursor, kwargs['sql'], *kwargs.get('args', []))
+        _ = self.__execute(cursor, kwargs['sql'], *kwargs.get('args', []))
 
         cursor.close()
 
     def commit(self) -> NoReturn:
         """Commit transaction."""
-        self._conn.commit()
+        self.__conn.commit()
 
     def rollback(self) -> NoReturn:
-        self._conn.rollback()
+        self.__conn.rollback()
 
     def close(self) -> NoReturn:
         """Close current connection."""
-        self._conn.close()
+        self.__conn.close()
 
     def get_real_driver(self) -> Any:
         """Return real mysql driver connection."""
-        return self._conn
+        return self.__conn
 
     def placeholder(self, **kwargs) -> AnyStr:
         """Return query place holder."""
@@ -239,4 +263,4 @@ class Mysql(Driver):
 
     def __repr__(self):
         """Mysql driver representation."""
-        return f"Mysql({str(self._params)})"
+        return f"Mysql({str(self.__params)})"

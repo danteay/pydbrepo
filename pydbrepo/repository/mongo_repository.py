@@ -67,7 +67,7 @@ class MongoRepository(Repository):
 
         return self.entity().from_dict(record)
 
-    def find_many(self, **kwargs) -> Any:
+    def find_many(self, **kwargs) -> List[Any]:
         """Find one record from passed filters.
 
         :param kwargs: Parameters that will be process by the method.

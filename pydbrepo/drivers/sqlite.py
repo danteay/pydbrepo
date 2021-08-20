@@ -1,6 +1,7 @@
 """SQLite Driver implementation."""
 
 # pylint: disable=R0201
+
 import os
 import sqlite3
 from typing import Any, AnyStr, List, NoReturn, Optional, Tuple
@@ -11,6 +12,13 @@ from pydbrepo.drivers.driver import Driver
 class SQLite(Driver):
     """SQLite Driver connection class.
 
+    Environment variables:
+        DATABASE_URL: Database file ulr on the system. If it's an in memory database the url should
+            be None or `:memory:` string
+
+        DATABASE_COMMIT: default('false') Auto commit transaction flag
+
+    :type url:
     :param url: Database connection url
     :param autocommit: Auto commit transactions
     """
