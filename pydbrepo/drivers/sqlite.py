@@ -1,7 +1,7 @@
 """SQLite Driver implementation."""
 
 # pylint: disable=R0201
-
+import os
 import sqlite3
 from typing import Any, AnyStr, List, NoReturn, Optional, Tuple
 
@@ -18,7 +18,7 @@ class SQLite(Driver):
     def __init__(
         self,
         url: Optional[AnyStr] = None,
-        autocommit: Optional[bool] = False,
+        autocommit: Optional[bool] = None,
     ):
         super().__init__()
         self.__build_connection(url, autocommit)
@@ -26,7 +26,7 @@ class SQLite(Driver):
     def __build_connection(
         self,
         url: Optional[AnyStr] = None,
-        autocommit: Optional[bool] = False,
+        autocommit: Optional[bool] = None,
     ) -> NoReturn:
         """Start real driver connection from parameters.
 
@@ -36,6 +36,15 @@ class SQLite(Driver):
 
         if url is None:
             url = ':memory:'
+
+        if autocommit is None:
+            autocommit = False
+
+        if os.getenv('DATABASE_URL', None) is not None:
+            url = os.getenv('DATABASE_URL')
+
+        if os.getenv('DATABASE_COMMIT', None) is not None:
+            autocommit = os.getenv('DATABASE_COMMIT').lower() == "true"
 
         self.__url = url
         self.__conn = sqlite3.connect(url)
