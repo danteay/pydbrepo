@@ -25,6 +25,7 @@ def add_limit(query: QueryBuilder, params: Mapping) -> QueryBuilder:
 
     :param query: Instance of the pypika query builder
     :param params: Configured params for the query
+
     :return QueryBuilder: Instance of the query builder
     """
 
@@ -41,6 +42,7 @@ def add_offset(query: QueryBuilder, params: Mapping) -> QueryBuilder:
 
     :param query: Instance of the pypika query builder
     :param params: Configured params for the query
+
     :return QueryBuilder: Instance of the query builder
     """
 
@@ -57,6 +59,7 @@ def add_order_by(query: QueryBuilder, params: Mapping) -> QueryBuilder:
 
     :param query: Instance of the pypika query builder
     :param params: Configured params for the query
+
     :return QueryBuilder: Instance of the query builder
     """
 
@@ -75,6 +78,7 @@ def add_group_by(query: QueryBuilder, params: Mapping) -> QueryBuilder:
 
     :param query: Instance of the pypika query builder
     :param params: Configured params for the query
+
     :return QueryBuilder: Instance of the query builder
     """
 
@@ -114,6 +118,7 @@ def add_set_statements(
     :param entity_properties: Allowed entity properties to be used
     :param driver: Current driver to get placeholder
     :param kwargs: Any other diver placeholder related arguments
+
     :return QueryBuilder: Updated QueryBuilder
     :raise RepositoryBuilderError: If some data key is not present on the entity properties
     """
@@ -138,14 +143,15 @@ def add_where_statements(
     skip: Optional[Set[AnyStr]] = None,
     **kwargs,
 ) -> Tuple[QueryBuilder, List[Any]]:
-    """Add SET statements of an UPDATE query.
+    """Add WHERE ... AND statements of an UPDATE query.
 
     :param query: Current Query builder
     :param data: Data to be added to update query
     :param entity_properties: Allowed entity properties to be used
     :param skip: Set of field names that will be skipped if they are present on data mapping
     :param driver: Current driver to get placeholder
-    :param kwargs: Any other diver placeholder related arguments
+    :param kwargs: Any other diver placeholder related argument
+
     :return QueryBuilder: Updated QueryBuilder
     :raise RepositoryBuilderError: If some data key is not present on the entity properties
     """

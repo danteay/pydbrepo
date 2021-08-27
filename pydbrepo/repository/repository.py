@@ -58,7 +58,7 @@ class Repository(ABC):
         instance = value()
 
         if not isinstance(instance, Entity):
-            raise TypeError('Unexpected base model type, should be an instance of BaseModel.', )
+            raise TypeError('Unexpected base model type, should be a Type[Entity] class.', )
 
         self._entity = value
         self.entity_properties = set(instance.to_dict(skip_none=False).keys())
