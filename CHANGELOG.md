@@ -1,3 +1,9 @@
+## v0.6.0 (2021-08-27)
+
+### Feat
+
+- add support for sqlite env vars
+
 ## v0.5.0 (2021-08-27)
 
 ### Feat
