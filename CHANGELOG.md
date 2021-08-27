@@ -1,3 +1,9 @@
+## v0.5.0 (2021-08-27)
+
+### Feat
+
+- Add SQLite support driver and repository
+
 ## v0.4.2 (2021-08-10)
 
 ### Fix
