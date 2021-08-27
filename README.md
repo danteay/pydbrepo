@@ -3,6 +3,13 @@
 Is a simple implementation of the Repository pattern to access data in python, providing extensibility flexibility
 and builtin tools to manage databases with this pattern.
 
+## Supported databases
+
+- SQLite
+- MySQL
+- PostgreSQL
+- MongoDB
+
 ## Requirements
 
 - Python >= 3.7
