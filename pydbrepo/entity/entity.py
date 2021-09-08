@@ -1,7 +1,7 @@
 """Entity is a data abstraction, this is not necessary a Table representation, but also
 is a data representation of a row returned from any query.
 """
-
+from enum import Enum
 from typing import (Any, AnyStr, Dict, Iterable, List, Mapping, Set, Tuple, Union)
 
 from pydbrepo.errors import SerializationError
@@ -78,7 +78,10 @@ class Entity:
         """
 
         if isinstance(value, Entity):
-            value = value.to_dict()
+            return value.to_dict()
+
+        if isinstance(value, Enum):
+            return value.value
 
         value_type = type(value)
 
