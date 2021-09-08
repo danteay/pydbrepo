@@ -1,3 +1,9 @@
+## v0.6.1 (2021-09-08)
+
+### Fix
+
+- enum convertion when to_dict function is called
+
 ## v0.6.0 (2021-08-27)
 
 ### Feat
