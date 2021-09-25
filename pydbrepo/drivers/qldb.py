@@ -3,33 +3,41 @@
 # pylint: disable=R0201
 
 import os
-from typing import Any, AnyStr, Dict, List, NoReturn, Optional, Tuple, Union, Callable
-from urllib.parse import urlparse
+from contextlib import ContextDecorator
+from typing import Any, AnyStr, Dict, List, NoReturn, Optional, Tuple
 
 from pyqldb.config.retry_config import RetryConfig
 from pyqldb.driver.qldb_driver import QldbDriver
 from pyqldb.execution.executor import Executor
 
-from pydbrepo.context import QLDBContext
 from pydbrepo.drivers.driver import Driver
 from pydbrepo.errors import DriverConfigError
 
-__all__ = ['QLDB']
+
+class QLDBContext(ContextDecorator):
+    """QLDB Query context implementation."""
+
+    def __init__(self):
+        self.result = []
+
+    def __enter__(self):
+        """start QLDB query context."""
+        return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        """Exit from query context."""
+        self.result = []
 
 
 class QLDB(Driver):
     """QLDB connection Driver.
 
     Environment variable configs:
-        DATABASE_URL: [1]
         DATABASE_NAME: ledger name
         QLDB_RETRY_CONF: integer defining number of retry attempts
         AWS_ACCESS_KEY_ID: User AWS access key
         AWS_SECRET_ACCESS_KEY: User AWS secret access key
         AWS_DEFAULT_REGION: AWS region where the ledger is hosted
-
-    :type url: str
-    :param url: Database URL with standard QLD format [1]
 
     :type ledger: str
     :param ledger: The QLDB ledger name.
@@ -47,13 +55,10 @@ class QLDB(Driver):
 
     :type aws_region: str
     :param aws_region: AWS Region code where the QLDB ledger is managed.
-
-    [1] QLDB URL format: qldb://<aws_access_key_id>:<aws_secret_access_key>@<aws_region>/<ledger>
     """
 
     def __init__(
         self,
-        url: Optional[AnyStr] = None,
         ledger: Optional[AnyStr] = None,
         retry: Optional[int] = None,
         aws_access_key_id: Optional[AnyStr] = None,
@@ -61,9 +66,7 @@ class QLDB(Driver):
         aws_region: Optional[AnyStr] = None,
     ):
         super().__init__()
-        self.__build_connection(
-            url, ledger, retry, aws_access_key_id, aws_secret_access_key, aws_region
-        )
+        self.__build_connection(ledger, retry, aws_access_key_id, aws_secret_access_key, aws_region)
 
     def query(self, **kwargs) -> List[Dict]:
         """Execute a query and return all values.
@@ -133,10 +136,7 @@ class QLDB(Driver):
 
     @staticmethod
     def __execute(
-        executor: Executor,
-        context: QLDBContext,
-        sql: AnyStr,
-        args: Tuple[Any, ...]
+        executor: Executor, context: QLDBContext, sql: AnyStr, args: Tuple[Any, ...]
     ) -> NoReturn:
         """Execute a query and store result in the shared context.
 
@@ -147,7 +147,7 @@ class QLDB(Driver):
         """
 
         cursor = executor.execute_statement(sql, *args)
-        context.result = list(map(lambda table: dict(table), cursor))
+        context.result = list(map(dict, cursor))
 
     def commit(self) -> NoReturn:
         pass
@@ -180,17 +180,11 @@ class QLDB(Driver):
         """No actions needed to reset place holder."""
 
     def __build_connection(
-        self,
-        url: AnyStr,
-        ledger: AnyStr,
-        retry: int,
-        aws_access_key_id: AnyStr,
-        aws_secret_access_key: AnyStr,
+        self, ledger: AnyStr, retry: int, aws_access_key_id: AnyStr, aws_secret_access_key: AnyStr,
         aws_region: AnyStr
     ) -> NoReturn:
         """Build QLDB connection.
 
-        :param url: Standard database connection URL
         :param ledger: Database ledger to connection
         :param retry: Number of retry attempts to connect with ledger
         :param aws_access_key_id: AWS access key ID of the user that will be connected
@@ -200,7 +194,7 @@ class QLDB(Driver):
         """
 
         self.__params = self.__prepare_connection_params(
-            url, ledger, retry, aws_access_key_id, aws_secret_access_key, aws_region
+            ledger, retry, aws_access_key_id, aws_secret_access_key, aws_region
         )
 
         if self.__params['retry_config'] is not None:
@@ -215,18 +209,13 @@ class QLDB(Driver):
 
         self.__conn = QldbDriver(**self.__params)
 
+    @staticmethod
     def __prepare_connection_params(
-        self,
-        url: AnyStr,
-        ledger: AnyStr,
-        retry: int,
-        aws_access_key_id: AnyStr,
-        aws_secret_access_key: AnyStr,
+        ledger: AnyStr, retry: int, aws_access_key_id: AnyStr, aws_secret_access_key: AnyStr,
         aws_region: AnyStr
     ) -> Dict[AnyStr, Any]:
 
         params = {
-            'url': url,
             'ledger_name': ledger,
             'retry_config': retry,
             'region_name': aws_region,
@@ -237,7 +226,6 @@ class QLDB(Driver):
         params = {key: value for key, value in params.items() if value is not None}
 
         envs = {
-            'url': os.getenv("DATABASE_URL", None),
             'ledger_name': os.getenv("DATABASE_NAME", None),
             'retry_config': os.getenv("QLDB_RETRY_CONF", None),
             'region_name': os.getenv("AWS_DEFAULT_REGION", None),
@@ -246,38 +234,8 @@ class QLDB(Driver):
         }
 
         envs.update(params)
-        envs.update(self.__parse_url_connection(envs['url']))
-        del envs['url']
 
         return envs
-
-    @staticmethod
-    def __parse_url_connection(url: AnyStr) -> Dict[AnyStr, AnyStr]:
-        """Parse connection url to extract QLDB configurations.
-
-        :param url: QLDB connection string
-        :return Dict[AnyStr, AnyStr]: Connection parameters
-        :raise DriverConfigError: If connection url schema is different from `qldb`
-        """
-
-        if url is None:
-            return {}
-
-        parsed = urlparse(url)
-
-        if parsed.scheme != 'qldb':
-            raise DriverConfigError('Invalid database URL scheme.')
-
-        data = {
-            'region_name': parsed.hostname,
-            'aws_secret_access_key': parsed.password,
-            'aws_access_key_id': parsed.username
-        }
-
-        if parsed.path:
-            data['ledger_name'] = parsed.path[1:]
-
-        return data
 
     def __repr__(self):
         """QLDB driver representation."""

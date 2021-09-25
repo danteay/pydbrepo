@@ -1,8 +1,8 @@
-"""Repositories are classes where main DB operations are defined, also the predefined operations can be
-extended to add more complex operations.
+"""Repositories are classes where main DB operations are defined, also the predefined operations
+can be extended to add more complex operations.
 """
 
-from typing import (Any, AnyStr, Dict, Iterable, List, NoReturn, Optional, Set, Tuple, Type, Union)
+from typing import Any, AnyStr, Dict, List, NoReturn, Optional, Tuple, Type
 
 from pypika import Parameter
 from pypika import PostgreSQLQuery as Query
@@ -42,7 +42,7 @@ class PostgresRepository(Repository):
         updated_at: Optional[AnyStr] = None,
     ):
         super().__init__(driver, entity, log_level, debug, auto_timestamps, created_at, updated_at)
-        self._table = table
+        self.__table = table
 
     def find_one(self, **kwargs) -> Any:
         """Find one record from passed filters.
@@ -54,14 +54,18 @@ class PostgresRepository(Repository):
         :return Entity: Configured entity instance with record information
         """
 
-        self._check_builder_requirements('find_one')
-        fields = self._prepare_selected_fields(kwargs.get('select', None))
+        common.check_builder_requirements('find_one', self.__table, self.entity)
+        fields = sql.prepare_selected_fields(kwargs.get('select', None), self.entity_properties)
 
         params = []
-        sql_query = Query.from_(self._table).select(*fields).limit(1)
+        sql_query = Query.from_(self.__table).select(*fields).limit(1)
 
         sql_query, where_values = sql.add_where_statements(
-            query=sql_query, data=kwargs, entity_properties=self.entity_properties, skip={'select'}, driver=self.driver
+            query=sql_query,
+            data=kwargs,
+            entity_properties=self.entity_properties,
+            skip={'select'},
+            driver=self.driver
         )
 
         params.extend(where_values)
@@ -90,11 +94,11 @@ class PostgresRepository(Repository):
         :return List[Any]: List of collected records by the corresponding filters
         """
 
-        self._check_builder_requirements('find_many')
-        fields = self._prepare_selected_fields(kwargs.get('select', None))
+        common.check_builder_requirements('find_many', self.__table, self.entity)
+        fields = sql.prepare_selected_fields(kwargs.get('select', None), self.entity_properties)
 
         params = []
-        sql_query = Query.from_(self._table).select(*fields)
+        sql_query = Query.from_(self.__table).select(*fields)
 
         sql_query, where_values = sql.add_where_statements(
             query=sql_query,
@@ -120,19 +124,23 @@ class PostgresRepository(Repository):
 
         return [self.entity().from_record(fields, record) for record in records]
 
-    def insert_one(self, record: Entity, returning: List[AnyStr] = None) -> Union[None, Tuple]:
+    def insert_one(self,
+                   record: Entity,
+                   returning: List[AnyStr] = None) -> Optional[Tuple[Any, ...]]:
         """Insert one record from an entity instance.
 
         :param record: New record data.
         :param returning: Returning fields of the insert query
-        :return Union[None, Tuple]: Returning requested fields
+
         :raise RepositoryBuilderError: When record is empty
+
+        :return Optional[Tuple[Any, ...]]: Returning requested fields
         """
 
         if not record:
             raise BuilderError("Can't insert an empty record.")
 
-        self._check_builder_requirements('insert_one')
+        common.check_builder_requirements('insert_one', self.__table, self.entity)
 
         data = self._add_created_at(record.to_dict())
         data = self._add_updated_at(data)
@@ -141,7 +149,7 @@ class PostgresRepository(Repository):
         values = list(map(common.handle_extra_types, data.values()))
         params = [Parameter(self.driver.placeholder()) for _ in range(len(values))]
 
-        sql_query = Query.into(self._table).columns(*columns).insert(*params)
+        sql_query = Query.into(self.__table).columns(*columns).insert(*params)
         sql_query = sql.add_returning(sql_query, returning)
 
         self.logger.debug(f"SQL: {sql_query}")
@@ -152,24 +160,28 @@ class PostgresRepository(Repository):
         self.driver.query_none(sql=sql_query, args=values)
         return None
 
-    def insert_many(self, records: List[Entity], returning: List[AnyStr] = None) -> Union[None, List[Tuple]]:
+    def insert_many(self,
+                    records: List[Entity],
+                    returning: List[AnyStr] = None) -> Optional[List[Tuple[Any, ...]]]:
         """Insert many records at once from entity objects.
 
         :param records: List of new records with data.
-        :param returning: Returning fields of the insert query
-        :return Union[None, List[Tuple]]: List of returning requested fields
-        :raise RepositoryBuilderError: When records are empty
+        :param returning: Returning fields of the insert query.
+
+        :raise RepositoryBuilderError: When records are empty.
+
+        :return Optional[List[Tuple[Any, ...]]]: List of returning requested fields.
         """
 
-        if not records or len(records) < 1:
+        if not records:
             raise BuilderError("Can't insert an empty record.")
 
-        self._check_builder_requirements('insert_many')
+        common.check_builder_requirements('insert_many', self.__table, self.entity)
 
         columns = list(records[0].to_dict().keys())
         params = [Parameter(self.driver.placeholder()) for _ in range(len(columns))]
 
-        sql_query = Query.into(self._table).columns(*columns)
+        sql_query = Query.into(self.__table).columns(*columns)
 
         values = []
 
@@ -203,21 +215,27 @@ class PostgresRepository(Repository):
         :param kwargs: Filter members like `id=12` or `email='some@mail.com'`
         """
 
-        self._check_builder_requirements('update')
+        common.check_builder_requirements('update', self.__table, self.entity)
 
         data = self._add_updated_at(data)
 
         values = []
-        sql_query = Query.update(self._table)
+        sql_query = Query.update(self.__table)
 
         sql_query, set_values = sql.add_set_statements(
-            query=sql_query, data=data, entity_properties=self.entity_properties, driver=self.driver
+            query=sql_query,
+            data=data,
+            entity_properties=self.entity_properties,
+            driver=self.driver
         )
 
         values.extend(set_values)
 
         sql_query, where_values = sql.add_where_statements(
-            query=sql_query, data=kwargs, entity_properties=self.entity_properties, driver=self.driver
+            query=sql_query,
+            data=kwargs,
+            entity_properties=self.entity_properties,
+            driver=self.driver
         )
 
         values.extend(where_values)
@@ -231,40 +249,15 @@ class PostgresRepository(Repository):
         :param kwargs: Filter parameters for the query statement
         """
 
-        self._check_builder_requirements('delete')
+        common.check_builder_requirements('delete', self.__table, self.entity)
 
-        sql_query = Query.from_(self._table).delete()
+        sql_query = Query.from_(self.__table).delete()
         sql_query, values = sql.add_where_statements(
-            query=sql_query, data=kwargs, entity_properties=self.entity_properties, driver=self.driver
+            query=sql_query,
+            data=kwargs,
+            entity_properties=self.entity_properties,
+            driver=self.driver
         )
 
         self.logger.debug(f"SQL: {str(sql_query)}")
         self.driver.query_none(sql=str(sql_query), args=values)
-
-    def _check_builder_requirements(self, operation: AnyStr) -> NoReturn:
-        """Validate if there is a configured default table and base model to
-        execute predefined query builder.
-
-        :param operation: Operation name that is being evaluated
-        :raise RepositoryBuilderError: If default table is None
-        """
-
-        if self._table is None:
-            raise BuilderError(
-                f"Can't perform {operation} action without a default table. "
-                "Please override the method.",
-            )
-
-        if self.entity is None:
-            raise BuilderError(
-                f"Can't perform {operation} action without a default base model. "
-                "Please override the method.",
-            )
-
-    def _prepare_selected_fields(self, fields: Iterable[AnyStr]) -> Set[AnyStr]:
-        """Check for selected fields of the query."""
-
-        if fields is not None:
-            return set(fields)
-
-        return self.entity_properties

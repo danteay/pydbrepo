@@ -18,7 +18,9 @@ class Entity:
     def to_dict(self, skip_none: bool = True) -> Dict[AnyStr, Any]:
         """Serialize all object data into a dict.
 
-        :param skip_none: If True, skip all properties of the final result if the value of the properties are None
+        :param skip_none: If True, skip all properties of the final result if the value of the
+            properties are None
+
         :return dict: Serialized data
         """
 
@@ -77,6 +79,10 @@ class Entity:
         :return Any: Converted value to dict or corresponding value
         """
 
+        # Avoid to be treat as an iterable object
+        if isinstance(value, str):
+            return value
+
         if isinstance(value, Entity):
             return value.to_dict()
 
@@ -85,7 +91,7 @@ class Entity:
 
         value_type = type(value)
 
-        if issubclass(value_type, Iterable) and not isinstance(value, Mapping) and value_type != str:
+        if issubclass(value_type, Iterable) and not isinstance(value, Mapping):
             value = self.__items_to_dict(value)
 
         return value
@@ -131,7 +137,9 @@ class Entity:
         return instance
 
     @classmethod
-    def from_record(cls, fields: Union[List[Any], Set[Any], Tuple[Any, ...]], record: Tuple[Any, ...]) -> Any:
+    def from_record(
+        cls, fields: Union[List[Any], Set[Any], Tuple[Any, ...]], record: Tuple[Any, ...]
+    ) -> Any:
         """Create an instance from a tuple given by the database driver.
 
         :param fields: List of field names to serialize

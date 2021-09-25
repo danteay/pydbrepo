@@ -35,7 +35,7 @@ class MongoRepository(Repository):
         updated_at: Optional[AnyStr] = None,
     ):
         super().__init__(driver, entity, log_level, debug, auto_timestamps, created_at, updated_at)
-        self._collection = collection
+        self.__collection = collection
 
     def find_one(self, **kwargs) -> Any:
         """Find one record from passed filters.
@@ -50,7 +50,7 @@ class MongoRepository(Repository):
         :return Any: One record result
         """
 
-        self._check_builder_requirements('find_one')
+        common.check_builder_requirements('find_one', self.__collection, self.entity)
 
         params = {
             'filters': kwargs.get('filters'),
@@ -60,7 +60,9 @@ class MongoRepository(Repository):
             'offset': kwargs.get('offset')
         }
 
-        record = self.driver.query_one(action=MongoAction.find, collection=self._collection, **params)
+        record = self.driver.query_one(
+            action=MongoAction.find, collection=self.__collection, **params
+        )
 
         if not record:
             return None
@@ -80,7 +82,7 @@ class MongoRepository(Repository):
         :return Any: List of records found by query
         """
 
-        self._check_builder_requirements('find_many')
+        common.check_builder_requirements('find_many', self.__collection, self.entity)
 
         params = {
             'filters': kwargs['filters'],
@@ -90,7 +92,7 @@ class MongoRepository(Repository):
             'offset': kwargs.get('offset', None)
         }
 
-        records = self.driver.query(action=MongoAction.find, collection=self._collection, **params)
+        records = self.driver.query(action=MongoAction.find, collection=self.__collection, **params)
 
         if not records:
             return []
@@ -100,19 +102,22 @@ class MongoRepository(Repository):
     def insert_one(self, record: Entity, return_id: bool = False) -> Any:
         """Find one record from passed filters.
 
-        :param record: Document to add to the collection
-        :param return_id: Flag to return new inserted ids
-        :return Any: List of records found by query
+        :param record: Document to add to the collection.
+        :param return_id: Flag to return new inserted ids.
+
+        :return Any: List of records found by query.
         """
 
-        self._check_builder_requirements('insert_one')
+        common.check_builder_requirements('insert_one', self.__collection, self.entity)
 
         data = {key: common.handle_extra_types(value) for key, value in record.to_dict().items()}
 
         data = self._add_created_at(data)
         data = self._add_updated_at(data)
 
-        result = self.driver.query_one(action=MongoAction.insert, collection=self._collection, data=data)
+        result = self.driver.query_one(
+            action=MongoAction.insert, collection=self.__collection, data=data
+        )
 
         if return_id:
             return result.inserted_id
@@ -122,24 +127,30 @@ class MongoRepository(Repository):
     def insert_many(self, records: List[Entity], return_ids: bool = False) -> Any:
         """Find one record from passed filters.
 
-        :param records: Documents to add to the collection
-        :param return_ids: Flag to return new inserted ids
-        :return Any: List of records found by query
+        :param records: Documents to add to the collection.
+        :param return_ids: Flag to return new inserted ids.
+
+        :return Any: List of records found by query.
         """
 
-        self._check_builder_requirements('insert_many')
+        common.check_builder_requirements('insert_many', self.__collection, self.entity)
 
         data = []
 
         for record in records:
-            record = {key: common.handle_extra_types(value) for key, value in record.to_dict().items()}
+            record = {
+                key: common.handle_extra_types(value)
+                for key, value in record.to_dict().items()
+            }
 
             record = self._add_created_at(record)
             record = self._add_updated_at(record)
 
             data.append(record)
 
-        result = self.driver.query(action=MongoAction.insert, collection=self._collection, data=data)
+        result = self.driver.query(
+            action=MongoAction.insert, collection=self.__collection, data=data
+        )
 
         if return_ids:
             return result.inserted_ids
@@ -154,7 +165,7 @@ class MongoRepository(Repository):
             data: Union[Dict[AnyStr, Any], Entity] -> Data to be updated
         """
 
-        self._check_builder_requirements('update')
+        common.check_builder_requirements('update', self.__collection, self.entity)
 
         data = kwargs.get('data', None)
 
@@ -172,7 +183,7 @@ class MongoRepository(Repository):
 
         self.driver.query_none(
             action=MongoAction.update,
-            collection=self._collection,
+            collection=self.__collection,
             filters=kwargs['filters'],
             type_=MongoActionType.many,
             data=data
@@ -185,29 +196,11 @@ class MongoRepository(Repository):
             filters: Dict[AnyStr, Any] -> Filters to be applied on Mongo Query
         """
 
-        self._check_builder_requirements('update')
+        common.check_builder_requirements('update', self.__collection, self.entity)
 
         self.driver.query_none(
             action=MongoAction.delete,
-            collection=self._collection,
+            collection=self.__collection,
             filters=kwargs['filters'],
             type_=MongoActionType.many,
         )
-
-    def _check_builder_requirements(self, operation: AnyStr) -> NoReturn:
-        """Validate if there is a configured default table and base model to
-        execute predefined query builder.
-
-        :param operation: Operation name that is being evaluated
-        :raise RepositoryBuilderError: If default table is None
-        """
-
-        if self._collection is None:
-            raise BuilderError(
-                f"Can't perform {operation} action without a default table. Please override the method.",
-            )
-
-        if self.entity is None:
-            raise BuilderError(
-                f"Can't perform {operation} action without a default base model. Please override the method.",
-            )

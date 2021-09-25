@@ -8,7 +8,7 @@ authors = ["Eduardo Aguilar <dante.aguilar41@gmail.com>"]
 repository = "https://github.com/danteay/pydbrepo"
 homepage = "https://github.com/danteay/pydbrepo"
 documentation = "https://pydbrepo.readthedocs.io"
-keywords = ['database', 'repository', 'postgres']
+keywords = ['database', 'repository', 'postgres', 'qldb', 'mysql', 'sqlite']
 classifiers = [
     "Programming Language :: Python :: 3.7",
     "Programming Language :: Python :: 3.8",
@@ -26,16 +26,16 @@ coverage = "~=5.5"
 mamba = "~=0.11.2"
 expects = "~=0.9.0"
 yapf = "~=0.31.0"
-pylint = "~=2.10.2"
+pylint = "~=2.11.1"
 isort = "~=5.9.3"
 radon = "~=5.1.0"
 Sphinx = "^4.0.2"
-sphinx-rtd-theme = "^0.5.2"
+sphinx-rtd-theme = "^1.0.0"
 psycopg2-binary = "^2.9.1"
 pymongo = "^3.12.0"
 dnspython = "^2.1.0"
 mysql-connector-python = "^8.0.26"
-pyqldb = "^3.2.0"
+pyqldb = "^3.2.1"
 sphinx-press-theme = "^0.8.0"
 
 [build-system]

@@ -28,10 +28,26 @@ pydbrepo.repository.postgres\_repository module
    :undoc-members:
    :show-inheritance:
 
+pydbrepo.repository.qldb\_repository module
+-------------------------------------------
+
+.. automodule:: pydbrepo.repository.qldb_repository
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 pydbrepo.repository.repository module
 -------------------------------------
 
 .. automodule:: pydbrepo.repository.repository
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+pydbrepo.repository.sqlite\_repository module
+---------------------------------------------
+
+.. automodule:: pydbrepo.repository.sqlite_repository
    :members:
    :undoc-members:
    :show-inheritance:

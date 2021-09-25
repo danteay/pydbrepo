@@ -44,6 +44,14 @@ pydbrepo.drivers.qldb module
    :undoc-members:
    :show-inheritance:
 
+pydbrepo.drivers.sqlite module
+------------------------------
+
+.. automodule:: pydbrepo.drivers.sqlite
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 Module contents
 ---------------
 
