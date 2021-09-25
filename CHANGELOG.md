@@ -1,3 +1,9 @@
+## v0.7.0 (2021-09-25)
+
+### Feat
+
+- add: QLDB driver and repository
+
 ## v0.6.1 (2021-09-08)
 
 ### Fix
