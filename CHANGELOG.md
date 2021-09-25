@@ -1,3 +1,9 @@
+## v0.7.3 (2021-09-25)
+
+### Fix
+
+- documentation theme template
+
 ## v0.7.2 (2021-09-25)
 
 ### Fix

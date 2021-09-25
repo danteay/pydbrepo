@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "pydbrepo"
-version = "0.7.2"
+version = "0.7.3"
 description = "Simple implementation of repository pattern for database connections."
 license = "MIT"
 readme = "README.md"
