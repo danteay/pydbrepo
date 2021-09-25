@@ -9,6 +9,7 @@ and builtin tools to manage databases with this pattern.
 - MySQL
 - PostgreSQL
 - MongoDB
+- Amazon QLDB
 
 ## Requirements
 
@@ -26,6 +27,10 @@ and builtin tools to manage databases with this pattern.
 
 - pymongo
 - dnspython
+
+### Amazon QLDB
+
+- pyqldb
 
 
 ## Examples
