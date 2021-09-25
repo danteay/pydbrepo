@@ -25,7 +25,9 @@ def add_limit(query: Cursor, limit: Optional[int] = None) -> Cursor:
     return query
 
 
-def add_order_by(query: Cursor, order_by: Optional[AnyStr] = None, order: Optional[int] = None) -> Cursor:
+def add_order_by(
+    query: Cursor, order_by: Optional[AnyStr] = None, order: Optional[int] = None
+) -> Cursor:
     """Add order_by filter to a mongo cursor query
 
     :param query: Current mongo query cursor

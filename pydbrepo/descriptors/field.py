@@ -1,7 +1,7 @@
 """Definition of an Entity field as a Class descriptor."""
 
 from datetime import date, datetime
-from typing import Any, AnyStr, Iterable, Optional, Tuple, Type, Union, NoReturn
+from typing import (Any, AnyStr, Iterable, NoReturn, Optional, Tuple, Type, Union)
 
 from dateutil.parser import parse
 

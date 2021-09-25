@@ -82,7 +82,9 @@ class Mysql(Driver):
         :param autocommit: Auto commit transactions
         """
 
-        self.__params = self.__prepare_connection_parameters(url, user, pwd, host, port, database, autocommit)
+        self.__params = self.__prepare_connection_parameters(
+            url, user, pwd, host, port, database, autocommit
+        )
         params = self.__params
 
         commit = params['autocommit']

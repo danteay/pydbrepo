@@ -5,7 +5,7 @@
 import os
 import ssl
 from enum import Enum
-from typing import Any, AnyStr, Dict, NoReturn, Optional, Union, Set
+from typing import Any, AnyStr, Dict, NoReturn, Optional, Set, Union
 
 import pymongo
 from pymongo.collection import Cursor
@@ -72,7 +72,8 @@ class Mongo(Driver):
     :type kwargs: named variadic
     :param kwargs: Any other pymongo.MongoClient configuration
 
-    [1] Standard URL format: mongodb[+srv]://<username>:<password>@<host>:<port>/<database>[?<arguments>]
+    [1] Standard URL format:
+        mongodb[+srv]://<username>:<password>@<host>:<port>/<database>[?<arguments>]
     """
 
     def __init__(
@@ -112,7 +113,8 @@ class Mongo(Driver):
 
     @staticmethod
     def __prepare_client_extra_params(**kwargs) -> Dict[AnyStr, Any]:
-        """Verify if there are specific configurations for MongoClient, if not add some basic config.
+        """Verify if there are specific configurations for MongoClient, if not add some basic
+        config.
 
         :param kwargs: Client extra configuration
         :return Dict[AnyStr, Any]: Updated configuration
@@ -265,11 +267,15 @@ class Mongo(Driver):
 
     def placeholder(self, **kwargs) -> AnyStr:
         """Query placeholder not needed on Mongo queries"""
-        raise NotImplementedError('Method is not implemented because is not needed for Mongo queries')
+        raise NotImplementedError(
+            'Method is not implemented because is not needed for Mongo queries'
+        )
 
     def reset_placeholder(self) -> NoReturn:
         """Reset placeholder not needed on Mongo queries."""
-        raise NotImplementedError('Method is not implemented because is not needed for Mongo queries')
+        raise NotImplementedError(
+            'Method is not implemented because is not needed for Mongo queries'
+        )
 
     def _execute_method(
         self,
@@ -351,9 +357,8 @@ class Mongo(Driver):
 
         raise DriverExecutionError(f'Invalid variation {type_} of find method')
 
-    def __insert(
-        self, type_: MongoActionType, collection: AnyStr, data: Dict[AnyStr, Any]
-    ) -> Union[InsertOneResult, InsertManyResult]:
+    def __insert(self, type_: MongoActionType, collection: AnyStr,
+                 data: Dict[AnyStr, Any]) -> Union[InsertOneResult, InsertManyResult]:
         """Return insert method variation of MongoClient connection.
 
         :param type_: Variation type of the mongo operation
@@ -491,7 +496,11 @@ class Mongo(Driver):
             return
 
         self.__conn = pymongo.MongoClient(
-            host=params['host'], port=int(params['port']), username=params['user'], password=params['pwd'], **kwargs
+            host=params['host'],
+            port=int(params['port']),
+            username=params['user'],
+            password=params['pwd'],
+            **kwargs
         )
 
     def __repr__(self):

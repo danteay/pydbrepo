@@ -11,6 +11,7 @@ Subpackages
    pydbrepo.helpers.mongo
    pydbrepo.helpers.mysql
    pydbrepo.helpers.sql
+   pydbrepo.helpers.sqlite
 
 Module contents
 ---------------

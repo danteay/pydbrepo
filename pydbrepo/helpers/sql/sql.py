@@ -1,6 +1,6 @@
 """Helper functions for query building."""
 
-from typing import Any, AnyStr, List, Mapping, Optional, Set, Tuple
+from typing import Any, AnyStr, Iterable, List, Mapping, Optional, Set, Tuple
 
 from pypika import Field, Order, Parameter
 from pypika.queries import QueryBuilder
@@ -8,16 +8,6 @@ from pypika.queries import QueryBuilder
 from pydbrepo.drivers.driver import Driver
 from pydbrepo.errors import BuilderError
 from pydbrepo.helpers import common
-
-__all__ = [
-    'add_limit',
-    'add_offset',
-    'add_group_by',
-    'add_order_by',
-    'add_returning',
-    'add_set_statements',
-    'add_where_statements',
-]
 
 
 def add_limit(query: QueryBuilder, params: Mapping) -> QueryBuilder:
@@ -152,8 +142,9 @@ def add_where_statements(
     :param driver: Current driver to get placeholder
     :param kwargs: Any other diver placeholder related argument
 
-    :return QueryBuilder: Updated QueryBuilder
     :raise RepositoryBuilderError: If some data key is not present on the entity properties
+
+    :return QueryBuilder: Updated QueryBuilder
     """
 
     if skip is None:
@@ -172,3 +163,18 @@ def add_where_statements(
         query = query.where(Field(key) == Parameter(driver.placeholder(**kwargs)))
 
     return query, values
+
+
+def prepare_selected_fields(fields: Iterable[AnyStr], default: Set[AnyStr]) -> Set[AnyStr]:
+    """Check for selected fields of the query.
+
+    :param fields: Iterable object with all field names that should be selected by the query
+    :param default: default set of fields in case of None
+
+    :return Set[AnyStr]: Casted names to a set object
+    """
+
+    if fields is not None:
+        return set(fields)
+
+    return default

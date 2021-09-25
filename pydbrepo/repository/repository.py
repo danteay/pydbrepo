@@ -3,12 +3,10 @@
 import logging
 from abc import ABC, abstractmethod
 from datetime import datetime
-from typing import Any, AnyStr, Dict, List, NoReturn, Optional, Type, Union
+from typing import Any, AnyStr, Dict, List, NoReturn, Optional, Type
 
 from pydbrepo.drivers.driver import Driver
 from pydbrepo.entity import Entity
-
-__all__ = ['Repository']
 
 
 class Repository(ABC):
@@ -33,7 +31,7 @@ class Repository(ABC):
         created_at: Optional[AnyStr] = None,
         updated_at: Optional[AnyStr] = None,
     ):
-        self._prepare_logger(log_level, debug)
+        self.__prepare_logger(log_level, debug)
         self.entity_properties = None
         self.driver = driver
 
@@ -93,11 +91,6 @@ class Repository(ABC):
         """Delete records according parameters."""
         raise NotImplementedError('delete method is not implemented.')
 
-    @abstractmethod
-    def _check_builder_requirements(self, operation: AnyStr) -> NoReturn:
-        """Verify builder requirements to use base repository methods."""
-        raise NotImplementedError('delete method is not implemented.')
-
     def _add_updated_at(self, data: Dict[AnyStr, Any]) -> Dict[AnyStr, Any]:
         """Add timestamp values if the auto_timestamps flag is configured.
 
@@ -128,7 +121,7 @@ class Repository(ABC):
 
         return data
 
-    def _prepare_logger(self, log_level: int, debug: bool) -> NoReturn:
+    def __prepare_logger(self, log_level: int, debug: bool) -> NoReturn:
         """Initialize internal logger.
 
         :param log_level: Logging level

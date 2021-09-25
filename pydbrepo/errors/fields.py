@@ -2,11 +2,6 @@
 
 from typing import Any, AnyStr, Iterable, Optional, Type, Union
 
-__all__ = [
-    'FieldTypeError',
-    'FieldCastError',
-]
-
 
 class FieldTypeError(TypeError):
     """Exception for Entity field type validation error.
@@ -17,14 +12,21 @@ class FieldTypeError(TypeError):
     :param expected_types: Expected type or an iterable object with the expected types of the value
     """
 
-    def __init__(self, class_name: AnyStr, field: AnyStr, value: Any, expected_types: Union[Type, Iterable[Type]]):
+    def __init__(
+        self,
+        class_name: AnyStr,
+        field: AnyStr,
+        value: Any,
+        expected_types: Union[Type, Iterable[Type]],
+    ):
         super().__init__(
-            f'{class_name}.{field}({value}) should be type(s) {self._types_to_str(expected_types)}: '
+            f'{class_name}.{field}({value}) should be type(s) '
+            f'{self.__types_to_str(expected_types)}: '
             f'given \'{type(value).__name__}\'',
         )
 
     @staticmethod
-    def _types_to_str(expected_types: Union[Type, Iterable[Type]]) -> AnyStr:
+    def __types_to_str(expected_types: Union[Type, Iterable[Type]]) -> AnyStr:
         """Parse the expected types and  show his str names.
 
         :param expected_types: Type or tuple of types
@@ -38,7 +40,7 @@ class FieldTypeError(TypeError):
             names = []
 
             for exp_type in expected_types:
-                names.append(FieldTypeError._types_to_str(exp_type))
+                names.append(FieldTypeError.__types_to_str(exp_type))
 
             return str(names)
 
@@ -65,12 +67,15 @@ class FieldCastError(Exception):
         cast_to: Type,
         current_type: Type,
         cast_if: Optional[Type] = None,
-        errors: Optional[Exception] = None
+        errors: Optional[Exception] = None,
     ):
-        super().__init__(self._build_error_message(class_name, field, value, cast_to, current_type, cast_if), errors)
+        super().__init__(
+            self.__build_error_message(class_name, field, value, cast_to, current_type, cast_if),
+            errors
+        )
 
     @staticmethod
-    def _build_error_message(
+    def __build_error_message(
         class_name: AnyStr,
         field: AnyStr,
         value: Any,
@@ -89,7 +94,9 @@ class FieldCastError(Exception):
         """
 
         if cast_if is not None:
-            return f"{class_name}.{field}({value}) can't be casted from {current_type.__name__} to " \
-                   f"{cast_to.__name__}, expected {cast_if.__name__} instead."
+            return f"{class_name}.{field}({value}) can't be casted from " \
+                   f"{current_type.__name__} to {cast_to.__name__}, " \
+                   f"expected {cast_if.__name__} instead."
 
-        return f"{class_name}.{field}({value}) can't be casted from {current_type.__name__} to {cast_to.__name__}."
+        return f"{class_name}.{field}({value}) can't be casted " \
+               f"from {current_type.__name__} to {cast_to.__name__}."
