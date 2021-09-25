@@ -1,3 +1,9 @@
+## v0.7.2 (2021-09-25)
+
+### Fix
+
+- add mising _static folder for docs build
+
 ## v0.7.1 (2021-09-25)
 
 ### Fix
