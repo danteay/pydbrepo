@@ -1,14 +1,13 @@
 """Definition of an Entity field as a Class descriptor."""
 
 from datetime import date, datetime
-from typing import (Any, AnyStr, Iterable, NoReturn, Optional, Tuple, Type, Union)
+from types import FunctionType
+from typing import (Any, AnyStr, Callable, Iterable, NoReturn, Optional, Tuple, Type, Union)
 
 from dateutil.parser import parse
 
 from pydbrepo.entity.enum_entity import EnumEntity
 from pydbrepo.errors import FieldCastError, FieldTypeError
-
-__all__ = ['Field']
 
 
 class Field:
@@ -52,9 +51,9 @@ class Field:
     def __init__(
         self,
         type_: Union[Type, Tuple[Type, ...]],
-        cast_to: Optional[Type] = None,
+        cast_to: Optional[Union[Type, Callable[[Any], Any]]] = None,
         cast_if: Optional[Union[Type, Tuple[Type, ...]]] = None,
-        cast_items_to: Optional[Type] = None,
+        cast_items_to: Optional[Union[Type, Callable[[Any], Any]]] = None,
         field: Optional[AnyStr] = None,
     ):
         self.__type = type_
@@ -132,23 +131,35 @@ class Field:
             `cast_if` Type when `cast_if` is different from None.
         """
 
-        if isinstance(value, self.__cast_to) or value is None:
+        if self.__verify_self_type_cast(value):
             return value
 
         if self.__cast_if is not None:
             if isinstance(value, self.__cast_if):
                 return self.__handle_cast(self.__cast_to, instance, value)
 
-            raise FieldCastError(
-                class_name=instance.__class__.__name__,
-                field=self.field,
-                value=value,
-                cast_to=self.__cast_to,
-                current_type=type(value),
-                cast_if=self.__cast_if
-            )
+            return value
 
         return self.__handle_cast(self.__cast_to, instance, value)
+
+    def __verify_self_type_cast(self, value: Any) -> bool:
+        """Execute self type casting validations to avoid execute an unnecessary casting.
+
+        :param value: Value that should be casted.
+
+        :return bool: Assertion flag that indicates if the value should skip casting.
+        """
+
+        if value is None:
+            return True
+
+        if isinstance(self.__cast_to, FunctionType):
+            return False
+
+        if isinstance(value, self.__cast_to):
+            return True
+
+        return False
 
     def __cast_iterable(self, instance: Any, value: Iterable) -> Any:
         """Cast iterable object items.
@@ -197,7 +208,7 @@ class Field:
             if 'from_dict' in set(dir(cast_to)):
                 return cast_to().from_dict(value)
 
-            return self.__cast_to(value)
+            return cast_to(value)
         except Exception as error:
             raise FieldCastError(
                 class_name=instance.__class__.__name__,
