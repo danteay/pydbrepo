@@ -11,6 +11,7 @@ Welcome to Pydbrepo's documentation!
    :caption: Contents:
 
    api/modules
+   examples/index
 
 Indices and tables
 ==================

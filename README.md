@@ -135,6 +135,31 @@ print(model.id) # => 10620c02-d80e-4950-b0a2-34a5f2d34ae5
 print(model.name) # => some
 ```
 
+##### Example of casting from a callback function
+
+```python
+from datetime import date, datetime
+from pydbrepo import Entity, Field, named_fields
+
+def cast_epoch(value):
+    if isinstance(value, date):
+        return int(value.strftime("%s"))
+    
+    if isinstance(value, datetime):
+        return int(value.timestamp())
+
+@named_fields
+class Model(Entity):
+    name = Field(type_=str)
+    epoch = Field(type_=(int, date, datetime), cast_to=cast_epoch, cast_if=(date, datetime))
+
+model = Model.from_dict({"name": "some", "epoch": datetime.now()})
+# Model({"name": "some", "epoch": 1231231231})
+
+print(model.name) # => some
+print(model.epoch) # => 1231231231
+```
+
 ##### Example of iterable fields and casting with Field descriptor
 
 ```python
