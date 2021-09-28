@@ -1,3 +1,9 @@
+## v0.8.0 (2021-09-28)
+
+### Feat
+
+- Add support for lambda casting fields
+
 ## v0.7.3 (2021-09-25)
 
 ### Fix
